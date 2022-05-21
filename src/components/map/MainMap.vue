@@ -63,17 +63,16 @@
 import { AddressService } from "@/service/address.service.js";
 import { HouseService } from "@/service/house.service.js";
 import KakaoMapEvent from "@/util/kakaoMapEvent.js";
+import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
 import { mapState } from "vuex";
 export default {
   name: "MainMap",
   components: {},
   data() {
     return {
-      searchDialog: true,
-      searchQuery: "서울 강남",
-      dialog: true,
-      drawer: false,
-      overlay: true,
+      searchDialog: true, // 검색 창 보이기/숨기기
+      searchQuery: "서울 강남", // 지역 검색
+      drawer: false, // 도구바 보이기/숨기기
       items: [
         {
           title: "지역 검색",
@@ -97,11 +96,11 @@ export default {
           },
         },
       ],
-      addressList: [],
-      search: "",
+      addressList: [], // 서버에서 받아온 주소 리스트
       mini: true,
       kakaomap: null,
       houses: [],
+      aptMarkers: [],
     };
   },
   computed: {
@@ -157,17 +156,40 @@ export default {
       this.kakaomap.panTo(moveLatLon);
       this.searchDialog = false;
     },
+    setAptMarkers(houses) {
+      this.aptMarkers.forEach((marker) => {
+        marker.setMap(null);
+      })
+      this.aptMarkers = [];
+      houses.forEach((house) => {
+        // console.log(Number(house.lat), Number(house.lng));
+        let marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(Number(house.lat), Number(house.lng)),
+          title: house.aptName,
+          map: this.kakaomap,
+          image: markerImage()
+        });
+
+        markerInfoWindow(house, marker, this.kakaomap, this.getAptDeals);
+        this.aptMarkers.push(marker);
+      });
+    },
+    getAptDeals() {
+      console.log("서버에서 가져오기", this)
+    }
   },
   watch: {
     searchDialog: function () {
+      // 검색창 닫으면 검색단어도 지운다
       this.searchQuery = "";
     },
     boundary: async function () {
+      // 바운더리 바뀔 때 마다, 서버에서 아파트 정보 받아온다.
       // console.log(this.boundary);
       const data = await HouseService.getHouses(this.boundary);
       if (data?.status == "success") {
         console.log(data);
-        this.houses = data.result;
+        this.setAptMarkers(data.result);
       } else {
         if (data.response.status == 403) {
           alert("금지된 요청");
