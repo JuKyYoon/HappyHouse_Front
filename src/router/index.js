@@ -73,6 +73,16 @@ const routes = [
     path: '/about',
     name: 'about',
     component: () => import('../views/AboutView.vue')
+  },
+  {
+    path: '/callbacknaver',
+    name: 'callbacknaver',
+    component: () => import('@/components/callback/NaverRedirect.vue')
+  },
+  {
+    path:'/socialsignup',
+    name: 'socialsignup',
+    component: () => import('@/views/SocialSignUpView.vue')
   }
 ]
 

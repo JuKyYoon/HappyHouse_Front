@@ -37,12 +37,17 @@
                 <v-btn class="green darken-1" type="submit" large dark
                   >로그인</v-btn
                 >
+                <v-btn :href="naverApi">
+                  <img height='50' src='http://static.nid.naver.com/oauth/small_g_in.PNG'/>
+                </v-btn>
               </v-form>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
+
+
   </div>
 </template>
 
@@ -59,7 +64,13 @@ export default {
     };
   },
   computed: {
-    
+    naverApi () {
+      let client_id = process.env.VUE_APP_NAVERLOGIN_CLIENT_ID;
+      let redirect_uri = process.env.VUE_APP_NAVERLOGIN_REDIRECT_URI;
+      let state = process.env.VUE_APP_NAVERLOGIN_RANDOM_STATE;
+      let naver_uri = process.env.VUE_APP_NAVERLOGIN_URI;
+      return naver_uri + '&client_id=' + client_id + '&redirect_uri=' + redirect_uri + '&state=' + state;
+    }
   },
   methods: {
     ...mapActions("authStore", ["login"]),

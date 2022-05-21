@@ -1,6 +1,7 @@
 import jwt_decode from "jwt-decode";
 import { AuthService } from "@/service/auth.service.js";
-
+import { SocialLoginService } from "@/service/socialLogin.service.js";
+import router from "@/router/index.js";
 const authStore = {
   namespaced: true,
   state: {
@@ -37,7 +38,25 @@ const authStore = {
         console.log(data);
         alert("로그인 실패");
       }
+    },
+    async naverLogin({commit}, {code, state}) {
+      const data = await SocialLoginService.naverLogin(code, state);
 
+      if(data?.status == "success"){
+        const result = data.result;
+        if(result=="register") {
+          console.log("회원가입 성공")
+          router.push("/socialsignup");
+        } else if (result == "registerfail") {
+          console.log("회원가입 왜 실패함? 서버 오류임")
+        } else {
+          console.log("로그인!")
+          commit("setUserId", {accessToken: result.accessToken, userid: result.email});
+          router.push("/");
+        }
+      } else {
+        console.log("fail")
+      }
     },
     async logout({ commit }) {
       if(this.state.authStore.isLogin) {
