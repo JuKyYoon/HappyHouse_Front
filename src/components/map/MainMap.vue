@@ -56,18 +56,24 @@
     </v-dialog>
 
     <div id="map"></div>
+    <deal-side-bar-vue :deals="deals"></deal-side-bar-vue>
   </div>
 </template>
 
 <script>
 import { AddressService } from "@/service/address.service.js";
+import { DealService } from "@/service/deal.service.js";
 import { HouseService } from "@/service/house.service.js";
 import KakaoMapEvent from "@/util/kakaoMapEvent.js";
 import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
+
 import { mapState } from "vuex";
+import DealSideBarVue from "./DealSideBar.vue";
 export default {
   name: "MainMap",
-  components: {},
+  components: {
+    DealSideBarVue,
+  },
   data() {
     return {
       searchDialog: true, // 검색 창 보이기/숨기기
@@ -101,6 +107,7 @@ export default {
       kakaomap: null,
       houses: [],
       aptMarkers: [],
+      deals: [],
     };
   },
   computed: {
@@ -174,8 +181,17 @@ export default {
         this.aptMarkers.push(marker);
       });
     },
-    getAptDeals() {
+    async getAptDeals(aptCode) {
       console.log("서버에서 가져오기", this)
+      console.log(aptCode)
+      const data = await DealService.getDealsByCode(aptCode);
+
+      if(data?.status == "success") {
+        console.log(data.result)
+        this.deals = data.result
+      } else {
+        console.log("거래내역 가져오기 실패")
+      }
     }
   },
   watch: {

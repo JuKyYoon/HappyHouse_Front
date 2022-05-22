@@ -53,6 +53,5 @@ function makeMarkerOverlay(map, marker, data, getAptDeals) {
   kakao.maps.event.addListener(map, "click", function() {
     customOverlay.setMap(null)
   });
-
-  getAptDeals();
+  getAptDeals(data.aptCode);
 }
