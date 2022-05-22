@@ -66,6 +66,11 @@ const routes = [
         path: 'main',
         name: 'main',
         component: () => import ("@/components/map/MainMap.vue")
+      },
+      {
+        path: 'custom',
+        name: 'custom',
+        component: () => import ("@/components/map/CustomMap.vue")
       }
     ]
   },

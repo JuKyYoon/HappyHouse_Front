@@ -71,7 +71,8 @@ export default {
         { title: "Home", path: "/", icon: "mdi-view-dashboard" },
         { title: "QNA", path: "/qna", icon: "mdi-account-box" },
         { title: "Calendar", path: "/about", icon: "mdi-gavel" },
-        { title: "Map", path: "/map", icon: "mdi-gavel"}
+        { title: "Map", path: "/map/main", icon: "mdi-gavel"},
+        { title: "customMap", path: "/map/custom", icon: "mdi-gavel"}
       ],
     };
   },

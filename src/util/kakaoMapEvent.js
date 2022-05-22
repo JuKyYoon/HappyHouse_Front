@@ -1,6 +1,8 @@
 import {debounce} from 'lodash';
 import store from "@/store/index.js";
 export default function (map, boundary) {
+  /* global kakao */
+
   // 마우스 드래그로 지도 이동이 완료되었을 때 마지막 파라미터로 넘어온 함수를 호출하도록 이벤트를 등록합니다
   // kakao.maps.event.addListener(map, "dragend", () => {
   //   // 지도 중심좌표를 얻어옵니다
@@ -9,8 +11,13 @@ export default function (map, boundary) {
   //   console.log(latlng, level);
   // });
 
-  /* global kakao */
   kakao.maps.event.addListener(map, "bounds_changed", debounce(() => {
+
+
+    // 여기에서 기존 바운더리와 비교해서, 새롭게 렌더링된 부분 좌표만 가져온다!
+
+
+
     // 지도 영역정보를 얻어옵니다
     var bounds = map.getBounds();
 
