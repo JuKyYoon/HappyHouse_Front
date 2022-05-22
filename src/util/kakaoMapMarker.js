@@ -13,16 +13,14 @@ export function markerImage() {
 }
 
 // 마커 클릭시 오버레이 생성할 수 있도록 한다.
-export function markerInfoWindow(data, marker, map, getAptDeals) {
+export function markerInfoWindow(data, marker, map, getAptDeals, closeOveray) {
   // 기본
   // var infowindow = new kakao.maps.InfoWindow({
   //   content: content, // 인포윈도우에 표시할 내용
   // });
 
   kakao.maps.event.addListener(marker, "click", function () {
-    let customOverlay = makeMarkerOverlay(map, marker, data, getAptDeals);
-
-    console.log(globalOverlay);
+    let customOverlay = makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray);
 
     if (globalOverlay) {
       globalOverlay.setMap(null);
@@ -35,7 +33,7 @@ export function markerInfoWindow(data, marker, map, getAptDeals) {
   // kakao.maps.event.addListener(marker, "click", makeMarkerOverlay(map, marker));
 }
 
-function makeMarkerOverlay(map, marker, data, getAptDeals) {
+function makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray) {
   let customOverlay = new kakao.maps.CustomOverlay({
     position: marker.getPosition(),
   });
@@ -64,9 +62,12 @@ function makeMarkerOverlay(map, marker, data, getAptDeals) {
   var closeBtn = document.createElement('button');
   closeBtn.innerHTML = '닫기';
   
+  // 닫기버튼을 누르면 글로벌 오버레이를 닫는다.
+  // 한 번 오버레이 열었다면 글로벌 오버레이는, 현재 열린 오버레이다!
   closeBtn.onclick = function() {
     if(globalOverlay) {
       globalOverlay.setMap(null);
+      closeOveray();
     }
   };
 

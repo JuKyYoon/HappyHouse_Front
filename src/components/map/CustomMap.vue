@@ -67,6 +67,7 @@ import { HouseService } from "@/service/house.service.js";
 import KakaoMapEvent from "@/util/kakaoMapEvent.js";
 import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
 
+
 import { mapState } from "vuex";
 import DealSideBarVue from "./DealSideBar.vue";
 export default {

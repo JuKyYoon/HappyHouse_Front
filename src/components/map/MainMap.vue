@@ -64,9 +64,10 @@
 import { AddressService } from "@/service/address.service.js";
 import { DealService } from "@/service/deal.service.js";
 import { HouseService } from "@/service/house.service.js";
+import { StoreService } from "@/service/store.service";
+
 import KakaoMapEvent from "@/util/kakaoMapEvent.js";
 import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
-
 import { mapState } from "vuex";
 import DealSideBarVue from "./DealSideBar.vue";
 export default {
@@ -166,7 +167,7 @@ export default {
     setAptMarkers(houses) {
       this.aptMarkers.forEach((marker) => {
         marker.setMap(null);
-      })
+      });
       this.aptMarkers = [];
       houses.forEach((house) => {
         // console.log(Number(house.lat), Number(house.lng));
@@ -174,25 +175,35 @@ export default {
           position: new kakao.maps.LatLng(Number(house.lat), Number(house.lng)),
           title: house.aptName,
           map: this.kakaomap,
-          image: markerImage()
+          image: markerImage(),
         });
 
-        markerInfoWindow(house, marker, this.kakaomap, this.getAptDeals);
+        markerInfoWindow(
+          house,
+          marker,
+          this.kakaomap,
+          this.getAptDeals,
+          this.closeOveray
+        );
         this.aptMarkers.push(marker);
       });
     },
     async getAptDeals(aptCode) {
-      console.log("서버에서 가져오기", this)
-      console.log(aptCode)
+      // 클릭시 거래내역 가져오기
+      console.log("서버에서 가져오기", this);
+      console.log(aptCode);
       const data = await DealService.getDealsByCode(aptCode);
 
-      if(data?.status == "success") {
-        console.log(data.result)
-        this.deals = data.result
+      if (data?.status == "success") {
+        console.log(data.result);
+        this.deals = data.result;
       } else {
-        console.log("거래내역 가져오기 실패")
+        console.log("거래내역 가져오기 실패");
       }
-    }
+    },
+    closeOveray() {
+      this.deals = [];
+    },
   },
   watch: {
     searchDialog: function () {
@@ -201,18 +212,28 @@ export default {
     },
     boundary: async function () {
       // 바운더리 바뀔 때 마다, 서버에서 아파트 정보 받아온다.
-      // console.log(this.boundary);
-      const data = await HouseService.getHouses(this.boundary);
-      if (data?.status == "success") {
-        console.log(data);
-        this.setAptMarkers(data.result);
-      } else {
-        if (data.response.status == 403) {
-          alert("금지된 요청");
+      // 단 현재 맵의 level 체크해서!!!!!!!
+      if (this.kakaomap.getLevel() < 6) {
+        const data = await HouseService.getHouses(this.boundary);
+        if (data?.status == "success") {
+          console.log(data);
+          this.setAptMarkers(data.result);
         } else {
-          alert("불러오기 실패");
+          if (data.response.status == 403) {
+            alert("금지된 요청");
+          } else {
+            alert("불러오기 실패");
+          }
         }
+      } else {
+        this.aptMarkers.forEach((marker) => {
+          marker.setMap(null);
+        });
+        this.aptMarkers = [];
       }
+
+      // const data2 = await StoreService.getStores(this.boundary);
+      // console.log(data2)
     },
   },
 };
