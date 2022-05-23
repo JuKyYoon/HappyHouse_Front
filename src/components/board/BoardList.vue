@@ -108,9 +108,9 @@ export default {
           value: "create_date",
         },
         {
-          text: "해결",
+          text: this.type == "qna" ? "해결" : "카테고리",
           sortable: true,
-          value: "solved",
+          value: this.type == "qna" ? "solved" : "category",
         },
       ],
     };

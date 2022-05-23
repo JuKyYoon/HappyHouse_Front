@@ -124,6 +124,7 @@ export default {
       aptMarkers: [],
       deals: [],
       dealOverlay: false,
+      clusterer: null,
     };
   },
   computed: {
@@ -139,7 +140,8 @@ export default {
       script.onload = () => kakao.maps.load(this.initMap);
       script.src =
         `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=` +
-        process.env.VUE_APP_KAKAOMAP_KEY + "&libraries=clusterer";
+        process.env.VUE_APP_KAKAOMAP_KEY +
+        "&libraries=clusterer";
       document.head.appendChild(script);
     }
   },
@@ -160,6 +162,11 @@ export default {
       this.kakaomap.relayout();
 
       KakaoMapEvent(this.kakaomap, this.boundary);
+      this.clusterer = new kakao.maps.MarkerClusterer({
+        map: this.kakaomap, // 마커들을 클러스터로 관리하고 표시할 지도 객체
+        averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
+        minLevel: 6, // 클러스터 할 최소 지도 레벨? 무슨 의미지
+      });
     },
     toggleSearchBar() {
       this.searchDialog = !this.searchDialog;
@@ -235,6 +242,7 @@ export default {
       // 단 현재 맵의 level 체크해서!!!!!!!
       const mapLevel = this.kakaomap.getLevel();
       if (mapLevel < 6) {
+        this.clusterer.clear();
         console.log("get apt");
         const data = await HouseService.getHouses(this.boundary);
         if (data?.status == "success") {
@@ -259,19 +267,14 @@ export default {
         const data = await HouseService.getHouseCount(this.boundary);
         if (data?.status == "success") {
           console.log(data);
-          let clusterer = new kakao.maps.MarkerClusterer({
-            map: this.kakaomap, // 마커들을 클러스터로 관리하고 표시할 지도 객체
-            averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
-            minLevel: 6, // 클러스터 할 최소 지도 레벨? 무슨 의미지
-          });
 
           var markers = data.result.map(function (position) {
             return new kakao.maps.Marker({
               position: new kakao.maps.LatLng(position.lat, position.lng),
             });
           });
-          clusterer.addMarkers(markers);
-          console.log(clusterer)
+          this.clusterer.clear();
+          this.clusterer.addMarkers(markers);
         } else {
           if (data.response.status == 403) {
             alert("금지된 요청");
