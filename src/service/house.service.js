@@ -9,4 +9,13 @@ export class HouseService {
       return err;
     }
   };
+
+  static getHouseCount = async (boundary) => {
+    try {
+      const result = await axiosAuth.post("/house/count", boundary);
+      return result.data;
+    } catch (err) {
+      return err;
+    }
+  }
 }

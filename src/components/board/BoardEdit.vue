@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <tip-tap-vue :mode="true" :create="true"></tip-tap-vue>
+    <tip-tap-vue :mode="true" :create="true" :type="type"></tip-tap-vue>
     <v-container>
     </v-container>
   </v-app>
@@ -12,6 +12,7 @@ import TipTapVue from "../editor/TipTap.vue";
 
 export default {
   name: "QnaEdit",
+  props: ["type"],
   components: {
     TipTapVue,
   },
@@ -21,7 +22,6 @@ export default {
     }
   },
   computed: {
-    ...mapMutations(['setQuestion'])
   },
   methods: {
 

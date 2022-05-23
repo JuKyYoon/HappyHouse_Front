@@ -69,8 +69,9 @@ export default {
       drawer: false,
       items: [
         { title: "Home", path: "/", icon: "mdi-view-dashboard" },
+        { title: "Board", path: "/board", icon: "mdi-gavel" },
         { title: "QNA", path: "/qna", icon: "mdi-account-box" },
-        { title: "Calendar", path: "/about", icon: "mdi-gavel" },
+        // { title: "Calendar", path: "/about", icon: "mdi-gavel" },
         { title: "Map", path: "/map/main", icon: "mdi-gavel"},
         { title: "customMap", path: "/map/custom", icon: "mdi-gavel"}
       ],

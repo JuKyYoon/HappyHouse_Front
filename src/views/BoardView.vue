@@ -1,5 +1,5 @@
 <template>
-  <router-view type="qna"></router-view>
+  <router-view type="board"></router-view>
 </template>
 
 <script>

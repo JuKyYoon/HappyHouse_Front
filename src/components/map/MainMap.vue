@@ -64,8 +64,11 @@
       <div id="map"></div>
     </div>
 
-    <div class="map-div-right" v-if="dealOverlay" >
-      <deal-side-bar-vue :deals="deals" @closeOveray="closeOveray"></deal-side-bar-vue>
+    <div class="map-div-right" v-if="dealOverlay">
+      <deal-side-bar-vue
+        :deals="deals"
+        @closeOveray="closeOveray"
+      ></deal-side-bar-vue>
     </div>
   </div>
 </template>
@@ -136,7 +139,7 @@ export default {
       script.onload = () => kakao.maps.load(this.initMap);
       script.src =
         `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=` +
-        process.env.VUE_APP_KAKAOMAP_KEY;
+        process.env.VUE_APP_KAKAOMAP_KEY + "&libraries=clusterer";
       document.head.appendChild(script);
     }
   },
@@ -230,7 +233,9 @@ export default {
     boundary: async function () {
       // 바운더리 바뀔 때 마다, 서버에서 아파트 정보 받아온다.
       // 단 현재 맵의 level 체크해서!!!!!!!
-      if (this.kakaomap.getLevel() < 6) {
+      const mapLevel = this.kakaomap.getLevel();
+      if (mapLevel < 6) {
+        console.log("get apt");
         const data = await HouseService.getHouses(this.boundary);
         if (data?.status == "success") {
           console.log(data);
@@ -242,11 +247,41 @@ export default {
             alert("불러오기 실패");
           }
         }
-      } else {
+      } else if (mapLevel < 8) {
+        // 동단위
+        console.log("get aptcount dong");
+
         this.aptMarkers.forEach((marker) => {
           marker.setMap(null);
         });
         this.aptMarkers = [];
+
+        const data = await HouseService.getHouseCount(this.boundary);
+        if (data?.status == "success") {
+          console.log(data);
+          let clusterer = new kakao.maps.MarkerClusterer({
+            map: this.kakaomap, // 마커들을 클러스터로 관리하고 표시할 지도 객체
+            averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
+            minLevel: 6, // 클러스터 할 최소 지도 레벨? 무슨 의미지
+          });
+
+          var markers = data.result.map(function (position) {
+            return new kakao.maps.Marker({
+              position: new kakao.maps.LatLng(position.lat, position.lng),
+            });
+          });
+          clusterer.addMarkers(markers);
+          console.log(clusterer)
+        } else {
+          if (data.response.status == 403) {
+            alert("금지된 요청");
+          } else {
+            alert("불러오기 실패");
+          }
+        }
+      } else {
+        // 시단위?
+        console.log("get aptcount si");
       }
 
       // const data2 = await StoreService.getStores(this.boundary);
