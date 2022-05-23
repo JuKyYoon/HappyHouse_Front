@@ -1,66 +1,77 @@
 <template>
-  <div>
-    <v-navigation-drawer
-      class="map-tool"
-      v-model="drawer"
-      :mini-variant.sync="mini"
-      permanent
-    >
-      <v-list-item class="px-2">
-        <v-list-item-avatar>
-          <v-icon>mdi-home-city</v-icon>
-        </v-list-item-avatar>
+  <div class="main-map">
+    <div class="map-div-left">
+      <v-navigation-drawer
+        class="map-tool"
+        v-model="drawer"
+        :mini-variant.sync="mini"
+        permanent
+      >
+        <v-list-item class="px-2">
+          <v-list-item-avatar>
+            <v-icon>mdi-home-city</v-icon>
+          </v-list-item-avatar>
 
-        <v-list-item-title>도구 모음</v-list-item-title>
+          <v-list-item-title>도구 모음</v-list-item-title>
 
-        <v-btn icon @click.stop="mini = !mini">
-          <v-icon>mdi-chevron-left</v-icon>
-        </v-btn>
-      </v-list-item>
-
-      <v-divider></v-divider>
-
-      <v-list dense>
-        <v-list-item v-for="item in items" :key="item.title">
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title @click="item.clickAction">{{
-              item.title
-            }}</v-list-item-title>
-          </v-list-item-content>
+          <v-btn icon @click.stop="mini = !mini">
+            <v-icon>mdi-chevron-left</v-icon>
+          </v-btn>
         </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
 
-    <v-dialog v-model="searchDialog" width="700" content-class="map-search-bar">
-      <v-card>
-        <v-text-field
-          filled
-          height="auto"
-          v-model.trim="searchQuery"
-          @keyup.enter="searchDong"
-        ></v-text-field>
-        <v-select
-          :items="addressList"
-          :item-text="
-            (item) => item.sidoName + ' ' + item.gugunName + ' ' + item.dongName
-          "
-          item-value="dongCode"
-          return-object
-          @change="moveToAddress"
-        ></v-select>
-      </v-card>
-    </v-dialog>
+        <v-divider></v-divider>
 
-    <div id="map"></div>
-    <deal-side-bar-vue :deals="deals"></deal-side-bar-vue>
+        <v-list dense>
+          <v-list-item v-for="item in items" :key="item.title">
+            <v-list-item-icon>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title @click="item.clickAction">{{
+                item.title
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+
+      <v-dialog
+        v-model="searchDialog"
+        width="700"
+        content-class="map-search-bar"
+      >
+        <v-card>
+          <v-text-field
+            filled
+            height="auto"
+            v-model.trim="searchQuery"
+            @keyup.enter="searchDong"
+          ></v-text-field>
+          <v-select
+            :items="addressList"
+            :item-text="
+              (item) =>
+                item.sidoName + ' ' + item.gugunName + ' ' + item.dongName
+            "
+            item-value="dongCode"
+            return-object
+            @change="moveToAddress"
+          ></v-select>
+        </v-card>
+      </v-dialog>
+
+      <div id="map"></div>
+    </div>
+
+    <div class="map-div-right" v-if="dealOverlay" >
+      <deal-side-bar-vue :deals="deals" @closeOveray="closeOveray"></deal-side-bar-vue>
+    </div>
   </div>
 </template>
 
 <script>
+/* global kakao */
 import { AddressService } from "@/service/address.service.js";
 import { DealService } from "@/service/deal.service.js";
 import { HouseService } from "@/service/house.service.js";
@@ -109,6 +120,7 @@ export default {
       houses: [],
       aptMarkers: [],
       deals: [],
+      dealOverlay: false,
     };
   },
   computed: {
@@ -116,11 +128,11 @@ export default {
   },
   mounted() {
     if (window.kakao && window.kakao.maps) {
+      // console.log("새로고침 하면 여기")
       this.initMap();
     } else {
       const script = document.createElement("script");
 
-      /* global kakao */
       script.onload = () => kakao.maps.load(this.initMap);
       script.src =
         `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=` +
@@ -131,6 +143,10 @@ export default {
   methods: {
     initMap() {
       const container = document.getElementById("map");
+      // 왜 kakao.maps.LatLng가 undefined 인지 모르겠음
+      // console.log(kakao.maps);
+      // console.log(kakao.maps.LatLng);
+      // console.log(kakao.maps);
       const options = {
         center: new kakao.maps.LatLng(33.450701, 126.570667),
         level: 5,
@@ -190,19 +206,20 @@ export default {
     },
     async getAptDeals(aptCode) {
       // 클릭시 거래내역 가져오기
-      console.log("서버에서 가져오기", this);
-      console.log(aptCode);
+      // console.log(aptCode);
       const data = await DealService.getDealsByCode(aptCode);
 
       if (data?.status == "success") {
         console.log(data.result);
         this.deals = data.result;
+        this.dealOverlay = true;
       } else {
         console.log("거래내역 가져오기 실패");
       }
     },
     closeOveray() {
       this.deals = [];
+      this.dealOverlay = false;
     },
   },
   watch: {
@@ -239,14 +256,83 @@ export default {
 };
 </script>
 
-<style scoped>
-.test {
-  background-color: red;
-  width: 100%;
-  height: 100%;
-}
-
+<style>
 #map {
   height: 80vh;
+}
+
+.main-map {
+  /* display: flex;
+  flex-direction: row; */
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.map-div-left {
+  width: 100%;
+}
+
+.custom-overlay {
+  position: absolute;
+  bottom: 50px;
+  margin-bottom: 5px;
+  margin-left: -150px;
+  padding: 7px;
+  width: 300px;
+  height: 150px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #000;
+  background-color: hsla(0, 0%, 20%, 0.9);
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.2;
+  z-index: -1;
+}
+
+.custom-overlay-title {
+  height: 40px;
+}
+
+.custom-overlay-close-button {
+  position: absolute;
+  width: 40px;
+  right: 10px;
+  background-color: white;
+  color: black;
+}
+
+.custom-overlay-close-button:hover {
+  background-color: grey;
+}
+
+.custom-overlay-main {
+  display: flex;
+  flex-direction: row;
+}
+.custom-overlay-left {
+  width: 150px;
+  /* background-color: red; */
+}
+.custom-overlay-right {
+  width: 150px;
+  /* background-color: blue; */
+}
+
+.overlay-apt-img {
+  width: auto;
+  height: 100px;
+}
+
+.map-div-right {
+  position: fixed;
+  top: 100px;
+  right: 0;
+  bottom: 0;
+  /* left: 0; */
+  height: 100px;
+  z-index: 10;
 }
 </style>

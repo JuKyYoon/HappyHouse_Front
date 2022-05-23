@@ -1,6 +1,7 @@
 /* global kakao */
 let globalOverlay = null;
 
+// 마커 이미지 생성
 export function markerImage() {
   let imageSize = new kakao.maps.Size(30, 30); // 마커이미지의 크기입니다
   let imageOption = { offset: new kakao.maps.Point(27, 69) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
@@ -14,10 +15,7 @@ export function markerImage() {
 
 // 마커 클릭시 오버레이 생성할 수 있도록 한다.
 export function markerInfoWindow(data, marker, map, getAptDeals, closeOveray) {
-  // 기본
-  // var infowindow = new kakao.maps.InfoWindow({
-  //   content: content, // 인포윈도우에 표시할 내용
-  // });
+
 
   kakao.maps.event.addListener(marker, "click", function () {
     let customOverlay = makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray);
@@ -29,13 +27,14 @@ export function markerInfoWindow(data, marker, map, getAptDeals, closeOveray) {
     globalOverlay = customOverlay;
     getAptDeals(data.aptCode);
   });
-
-  // kakao.maps.event.addListener(marker, "click", makeMarkerOverlay(map, marker));
 }
 
 function makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray) {
   let customOverlay = new kakao.maps.CustomOverlay({
-    position: marker.getPosition(),
+    // position: marker.getPosition(),
+    position: new kakao.maps.LatLng(data.lat, data.lng),
+    xAnchor: 0.5,
+    yAnchor: 0.5,
   });
 
   // let content = `<div class="wrap">
@@ -55,13 +54,16 @@ function makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray) {
   //   </div>`;
 
   var content = document.createElement('div');
-  content.className = 'wrap';
-  content.innerHTML = data.aptName;
-  content.style.backgroundColor = "skyblue";
+  content.className = 'custom-overlay';
+
+  var titleDiv = document.createElement('div');
+  titleDiv.className = 'custom-overlay-title';
+  titleDiv.innerHTML=`<span>${data.aptName}</span>`;
       
   var closeBtn = document.createElement('button');
-  closeBtn.innerHTML = '닫기';
-  
+  closeBtn.className="custom-overlay-close-button"
+  closeBtn.innerHTML = 'X';
+
   // 닫기버튼을 누르면 글로벌 오버레이를 닫는다.
   // 한 번 오버레이 열었다면 글로벌 오버레이는, 현재 열린 오버레이다!
   closeBtn.onclick = function() {
@@ -71,7 +73,22 @@ function makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray) {
     }
   };
 
-  content.appendChild(closeBtn);
+  var mainDiv = document.createElement('div');
+  mainDiv.className="custom-overlay-main";
+  mainDiv.innerHTML=`
+    <div class="custom-overlay-left">
+      <img class="overlay-apt-img" alt="none" src="https://images.unsplash.com/photo-1551766472-62096056b476?ixlib=rb-1.2.1&raw_url=true&q=80&fm=jpg&crop=entropy&cs=tinysrgb&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=836">
+    </div>
+    <div class="custom-overlay-right">
+      <p>건축연도 ${data.buildYear}</p>
+      <p>주소 ${data.dongName} ${data.jibun}</p>
+    </div>
+  `;
+
+
+  titleDiv.appendChild(closeBtn);
+  content.appendChild(titleDiv);
+  content.appendChild(mainDiv)
   customOverlay.setContent(content);
   return customOverlay;
 }

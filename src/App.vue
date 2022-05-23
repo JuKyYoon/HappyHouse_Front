@@ -17,14 +17,14 @@ export default {
     NaviBar,
   },
   created() {
-    const script = document.createElement("script");
+    // const script = document.createElement("script");
 
-    /* global kakao */
-    script.onload = () => kakao.maps.load(this.initMap);
-    script.src =
-      `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=` +
-      process.env.VUE_APP_KAKAOMAP_KEY;
-    document.head.appendChild(script);
+    // /* global kakao */
+    // script.onload = () => kakao.maps.load(this.initMap);
+    // script.src =
+    //   `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=` +
+    //   process.env.VUE_APP_KAKAOMAP_KEY;
+    // document.head.appendChild(script);
   },
 };
 </script>
