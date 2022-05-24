@@ -79,6 +79,22 @@ const routes = [
         path: "signup",
         name: "UserSignUp",
         component: () => import("@/components/user/UserSignUp.vue"),
+      },
+      {
+        path: "edit",
+        name: "UserEdit",
+        component: () => import("@/components/user/UserEdit.vue"),
+        props: true,
+      },
+      {
+        path: "delete",
+        name: "UserDelete",
+        component: () => import("@/components/user/UserDelete.vue"),
+      },
+      {
+        path: "findpw",
+        name: "UserFindPw",
+        component: () => import("@/components/user/UserFindPw.vue"),
       }
     ],
   },

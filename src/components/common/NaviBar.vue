@@ -50,7 +50,8 @@
 
       <span class="appbar-component" v-if="isLogin">
         <v-btn @click="logout">로그아웃</v-btn>
-        <v-btn to="/user/info">{{userid}}</v-btn>
+        
+        <v-btn to="/user/info"><v-icon>mdi-account-circle</v-icon></v-btn>
       </span>
         <span class="appbar-component" v-else>
         <v-btn to="/user/signup">회원가입</v-btn>

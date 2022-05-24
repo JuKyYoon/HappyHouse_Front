@@ -40,6 +40,10 @@
                 <v-btn :href="naverApi">
                   <img height='50' src='http://static.nid.naver.com/oauth/small_g_in.PNG'/>
                 </v-btn>
+
+                <v-btn :to="{name: `UserFindPw`}">
+                  비밀번호 찾기
+                </v-btn>
               </v-form>
             </v-card-text>
           </v-card>
@@ -93,40 +97,5 @@ export default {
   background-image: url("https://i.ytimg.com/vi/QN7l3ydXvx0/maxresdefault.jpg");
   background-size: cover;
   background-repeat: no-repeat;
-}
-
-@keyframes opacity-in {
-  from {
-    opacity: 0.4;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes opacity-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.4;
-  }
-}
-
-.card-login {
-  opacity: 0.4;
-  animation-name: opacity-out;
-  animation-duration: 2s;
-}
-
-.card-login:hover {
-  opacity: 1;
-  animation-name: opacity-in;
-  animation-duration: 2s;
-}
-
-.alert-in {
-  animation-name: opacity-in;
-  animation-duration: 2s;
 }
 </style>

@@ -42,13 +42,27 @@
         content-class="map-search-bar"
       >
         <v-card>
-          <v-text-field
+          <v-combobox
+            :items="addressList"
+            @keyup.enter="searchDong"
+            dense
+            filled
+            label="Filled"
+            item-text="address"
+            item-value="latlng"
+            return-object
+            :search-input.sync="searchQuery"
+            menu-props="{'searchDialog': false}"
+            @change="moveToAddress"
+          >
+          </v-combobox>
+          <!-- <v-text-field
             filled
             height="auto"
             v-model.trim="searchQuery"
             @keyup.enter="searchDong"
-          ></v-text-field>
-          <v-select
+          ></v-text-field> -->
+          <!-- <v-select
             :items="addressList"
             :item-text="
               (item) =>
@@ -57,7 +71,7 @@
             item-value="dongCode"
             return-object
             @change="moveToAddress"
-          ></v-select>
+          ></v-select> -->
         </v-card>
       </v-dialog>
 
@@ -67,6 +81,7 @@
     <div class="map-div-right" v-if="dealOverlay">
       <deal-side-bar-vue
         :deals="deals"
+        :aptName="aptName"
         @closeOveray="closeOveray"
       ></deal-side-bar-vue>
     </div>
@@ -125,6 +140,7 @@ export default {
       deals: [],
       dealOverlay: false,
       clusterer: null,
+      aptName: "",
     };
   },
   computed: {
@@ -172,12 +188,20 @@ export default {
       this.searchDialog = !this.searchDialog;
     },
     async searchDong() {
+      if(this.searchQuery.length < 2) {
+        alert("2글자 이상 입력하세요");
+        return;
+      }
       const data = await AddressService.searchDong({
         searchQuery: this.searchQuery,
       });
       if (data?.status === "success") {
         console.log(data.result);
-        this.addressList = data.result;
+        // this.addressList = data.result;
+        this.addressList = data.result.map((d)=>{
+          d.address = `${d.sidoName} ${d.gugunName} ${d.dongName}`
+          return d;
+        })
       } else if (data?.result == "short") {
         alert("2글자 이상 입력하세요");
       } else {
@@ -185,8 +209,9 @@ export default {
       }
     },
     moveToAddress(item) {
-      console.log(item);
-      var moveLatLon = new kakao.maps.LatLng(item.lat, item.lng);
+      if(item.lat == undefined || item.lng == undefined) { return; }
+      console.log(item.lat, item.lng);
+      var moveLatLon = new kakao.maps.LatLng(Number(item.lat), Number(item.lng));
       this.kakaomap.panTo(moveLatLon);
       this.searchDialog = false;
     },
@@ -214,7 +239,7 @@ export default {
         this.aptMarkers.push(marker);
       });
     },
-    async getAptDeals(aptCode) {
+    async getAptDeals(aptCode, aptName) {
       // 클릭시 거래내역 가져오기
       // console.log(aptCode);
       const data = await DealService.getDealsByCode(aptCode);
@@ -223,6 +248,7 @@ export default {
         console.log(data.result);
         this.deals = data.result;
         this.dealOverlay = true;
+        this.aptName = aptName;
       } else {
         console.log("거래내역 가져오기 실패");
       }
@@ -238,6 +264,10 @@ export default {
       this.searchQuery = "";
     },
     boundary: async function () {
+      if(this.boundary.left == null) {
+        alert('바운더리 오류')
+        return;
+      }
       // 바운더리 바뀔 때 마다, 서버에서 아파트 정보 받아온다.
       // 단 현재 맵의 level 체크해서!!!!!!!
       const mapLevel = this.kakaomap.getLevel();
@@ -276,7 +306,7 @@ export default {
           this.clusterer.clear();
           this.clusterer.addMarkers(markers);
         } else {
-          if (data.response.status == 403) {
+          if (data.response?.status == 403) {
             alert("금지된 요청");
           } else {
             alert("불러오기 실패");
@@ -366,11 +396,25 @@ export default {
 
 .map-div-right {
   position: fixed;
-  top: 100px;
-  right: 0;
+  top: 20%;
+  right: 10px;
   bottom: 0;
   /* left: 0; */
-  height: 100px;
+  width: 30%;
+  max-width: 500px;
+  height: 200px;
   z-index: 10;
+}
+
+.deal-side-bar-apt-title {
+  display: flex;
+  flex-direction: row;
+  margin: 1%;
+}
+.deal-side-bar-apt-title-text {
+  width: 400px;
+  color: white;
+  padding-left: 10px;
+  padding-top: 10px;
 }
 </style>

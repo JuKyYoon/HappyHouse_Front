@@ -25,7 +25,7 @@ export function markerInfoWindow(data, marker, map, getAptDeals, closeOveray) {
     }
     customOverlay.setMap(map);
     globalOverlay = customOverlay;
-    getAptDeals(data.aptCode);
+    getAptDeals(data.aptCode, data.aptName);
   });
 }
 

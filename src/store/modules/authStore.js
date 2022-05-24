@@ -71,6 +71,7 @@ const authStore = {
       }
       commit("deleteAuth");
       alert("로그아웃")
+      router.push("/")
     },
     async refresh({ commit }, { accessToken }) {},
   },

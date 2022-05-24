@@ -1,18 +1,33 @@
 <template>
   <v-card class="mx-auto map-right-side">
-    <v-navigation-drawer class="deep-purple accent-4" dark permanent>
-      <v-list>
-        <v-list-item v-for="deal in deals" :key="deal.no" link>
-          <!-- <v-list-item-icon>
-            <v-icon>{{ deal.no }}</v-icon>
-          </v-list-item-icon> -->
+    <v-navigation-drawer
+      class="deep-purple accent-4"
+      dark
+      permanent
+      width="500"
+    >
+      <div class="deal-side-bar-apt-title">
+        <div class="deal-side-bar-apt-title-text">
+          {{ aptName }}
+        </div>
+        <div><v-btn>즐겨찾기</v-btn></div>
+      </div>
 
-          <v-list-item-content>
-            <v-list-item-title>{{ deal.money }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
 
+      <v-data-table
+        dense
+        :headers="headers"
+        :items="deals"
+        item-key="no"
+        class="elevation-1"
+      >
+        <template v-slot:[`item.money`]="{ item }">
+          <span>{{ covertMoney(item.money) }}원</span>
+        </template>
+        <template v-slot:[`item.area`]="{ item }">
+          <span>{{ Math.ceil(item.area, 1) }}평</span>
+        </template>
+      </v-data-table>
       <template v-slot:append>
         <div class="pa-2">
           <v-btn v-on:click="closeOveray"> CLOSE </v-btn>
@@ -25,12 +40,76 @@
 <script>
 export default {
   name: "DealSideBar",
-  props: ["deals"],
+  props: ["deals", "aptName"],
+  data() {
+    return {
+      headers: [
+        {
+          text: "거래가",
+          align: "start",
+          sortable: true,
+          value: "money",
+          width: 130,
+        },
+        {
+          text: "년",
+          align: "start",
+          sortable: false,
+          value: "year",
+          width: 20,
+        },
+        {
+          text: "월",
+          align: "start",
+          sortable: false,
+
+          value: "month",
+          width: 20,
+        },
+        {
+          text: "일",
+          align: "start",
+          sortable: false,
+          value: "day",
+          width: 20,
+        },
+        {
+          text: "층",
+          align: "start",
+          sortable: true,
+          value: "floor",
+          width: 70,
+        },
+        {
+          text: "면적",
+          align: "start",
+          sortable: true,
+          value: "area",
+        },
+      ],
+    };
+  },
   methods: {
     closeOveray() {
-      this.$emit("closeOveray")
-    }
-  }
+      this.$emit("closeOveray");
+    },
+    convertDay(year, month, day) {
+      return `${year}년 ${month}월 ${day}일`;
+    },
+    covertMoney(money) {
+      let c = parseInt(money.replace(/,/g, ""));
+      let uk = parseInt(c / 10000);
+      if (uk != 0) {
+        if (c % 10000 == 0) {
+          return `${uk}억`;
+        } else {
+          return `${uk}억 ${c % 10000} 만`;
+        }
+      } else {
+        return `${c % 10000} 만`;
+      }
+    },
+  },
 };
 </script>
 
