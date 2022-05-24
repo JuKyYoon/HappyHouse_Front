@@ -34,6 +34,7 @@ const authStore = {
           userid: jwt_decode(data.result.accessToken).userid,
         });
         alert("로그인 성공");
+        router.push("/")
       } else {
         console.log(data);
         alert("로그인 실패");

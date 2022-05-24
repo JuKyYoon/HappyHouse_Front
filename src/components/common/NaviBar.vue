@@ -48,10 +48,13 @@
 
       <v-spacer></v-spacer>
 
-      <span class="appbar-component">
-        <v-btn to="/user/login">로그인</v-btn>
+      <span class="appbar-component" v-if="isLogin">
         <v-btn @click="logout">로그아웃</v-btn>
         <v-btn to="/user/info">{{userid}}</v-btn>
+      </span>
+        <span class="appbar-component" v-else>
+        <v-btn to="/user/signup">회원가입</v-btn>
+        <v-btn to="/user/login">로그인</v-btn>
       </span>
     </v-app-bar>
   </div>
@@ -78,7 +81,7 @@ export default {
     };
   },
   computed: {
-    ...mapState("authStore", ['userid'])
+    ...mapState("authStore", ['userid', 'isLogin'])
   },
   watch: {
     group() {
