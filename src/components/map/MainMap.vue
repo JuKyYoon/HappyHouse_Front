@@ -36,6 +36,7 @@
         </v-list>
       </v-navigation-drawer>
 
+      <!-- 검색창 -->
       <v-dialog
         v-model="searchDialog"
         width="700"
@@ -47,7 +48,7 @@
             @keyup.enter="searchDong"
             dense
             filled
-            label="Filled"
+            label="주소 검색"
             item-text="address"
             item-value="latlng"
             return-object
@@ -56,24 +57,32 @@
             @change="moveToAddress"
           >
           </v-combobox>
-          <!-- <v-text-field
-            filled
-            height="auto"
-            v-model.trim="searchQuery"
-            @keyup.enter="searchDong"
-          ></v-text-field> -->
-          <!-- <v-select
-            :items="addressList"
-            :item-text="
-              (item) =>
-                item.sidoName + ' ' + item.gugunName + ' ' + item.dongName
-            "
-            item-value="dongCode"
-            return-object
-            @change="moveToAddress"
-          ></v-select> -->
         </v-card>
       </v-dialog>
+
+      <v-row justify="center">
+        <v-dialog v-model="favoriteDialog" persistent max-width="600px">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="primary" dark v-bind="attrs" v-on="on">
+              불러오기
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">즐겨찾기</span>
+            </v-card-title>
+            <v-card-text>
+              <favorite-house-vue v-if="favoriteDialog" @moveToAddress="moveToAddress"></favorite-house-vue>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="favoriteDialog = false">
+                close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
 
       <div id="map"></div>
     </div>
@@ -82,6 +91,7 @@
       <deal-side-bar-vue
         :deals="deals"
         :aptName="aptName"
+        :aptCode="aptCode"
         @closeOveray="closeOveray"
       ></deal-side-bar-vue>
     </div>
@@ -99,13 +109,17 @@ import KakaoMapEvent from "@/util/kakaoMapEvent.js";
 import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
 import { mapState } from "vuex";
 import DealSideBarVue from "./DealSideBar.vue";
+import { FavoriteService } from "@/service/favorite.service";
+import FavoriteHouseVue from "./FavoriteHouse.vue";
 export default {
   name: "MainMap",
   components: {
     DealSideBarVue,
+    FavoriteHouseVue
   },
   data() {
     return {
+      favoriteDialog: false,
       searchDialog: true, // 검색 창 보이기/숨기기
       searchQuery: "서울 강남", // 지역 검색
       drawer: false, // 도구바 보이기/숨기기
@@ -121,7 +135,7 @@ export default {
           title: "My Account",
           icon: "mdi-account",
           clickAction: () => {
-            this.toggleSearchBar();
+            this.favoriteDialog = !this.favoriteDialog
           },
         },
         {
@@ -135,12 +149,13 @@ export default {
       addressList: [], // 서버에서 받아온 주소 리스트
       mini: true,
       kakaomap: null,
-      houses: [],
-      aptMarkers: [],
-      deals: [],
-      dealOverlay: false,
-      clusterer: null,
-      aptName: "",
+      houses: [], // 집 정보
+      aptMarkers: [], // 마커 배열
+      deals: [], // 사이드 창에서 불러오는 거래내역 리스트
+      dealOverlay: false, // 사이드 창 오버레이 토글
+      clusterer: null, 
+      aptName: "", // 현재 선택한 아파트 이름
+      aptCode: "", // 선택한 아파트 코드
     };
   },
   computed: {
@@ -188,7 +203,7 @@ export default {
       this.searchDialog = !this.searchDialog;
     },
     async searchDong() {
-      if(this.searchQuery.length < 2) {
+      if (this.searchQuery.length < 2) {
         alert("2글자 이상 입력하세요");
         return;
       }
@@ -198,10 +213,10 @@ export default {
       if (data?.status === "success") {
         console.log(data.result);
         // this.addressList = data.result;
-        this.addressList = data.result.map((d)=>{
-          d.address = `${d.sidoName} ${d.gugunName} ${d.dongName}`
+        this.addressList = data.result.map((d) => {
+          d.address = `${d.sidoName} ${d.gugunName} ${d.dongName}`;
           return d;
-        })
+        });
       } else if (data?.result == "short") {
         alert("2글자 이상 입력하세요");
       } else {
@@ -209,11 +224,17 @@ export default {
       }
     },
     moveToAddress(item) {
-      if(item.lat == undefined || item.lng == undefined) { return; }
+      if (item.lat == undefined || item.lng == undefined) {
+        return;
+      }
       console.log(item.lat, item.lng);
-      var moveLatLon = new kakao.maps.LatLng(Number(item.lat), Number(item.lng));
+      var moveLatLon = new kakao.maps.LatLng(
+        Number(item.lat),
+        Number(item.lng)
+      );
       this.kakaomap.panTo(moveLatLon);
       this.searchDialog = false;
+      this.favoriteDialog = false;
     },
     setAptMarkers(houses) {
       this.aptMarkers.forEach((marker) => {
@@ -249,6 +270,7 @@ export default {
         this.deals = data.result;
         this.dealOverlay = true;
         this.aptName = aptName;
+        this.aptCode = aptCode;
       } else {
         console.log("거래내역 가져오기 실패");
       }
@@ -262,10 +284,10 @@ export default {
     searchDialog: function () {
       // 검색창 닫으면 검색단어도 지운다
       this.searchQuery = "";
-    },
+    }, 
     boundary: async function () {
-      if(this.boundary.left == null) {
-        alert('바운더리 오류')
+      if (this.boundary.left == null) {
+        alert("바운더리 오류");
         return;
       }
       // 바운더리 바뀔 때 마다, 서버에서 아파트 정보 받아온다.

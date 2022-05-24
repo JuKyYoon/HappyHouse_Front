@@ -10,9 +10,31 @@
         <div class="deal-side-bar-apt-title-text">
           {{ aptName }}
         </div>
-        <div><v-btn>즐겨찾기</v-btn></div>
+        <div>
+          <v-btn v-if="!isFavorite" @click="registerFavorite"
+            ><v-rating
+              :value="0"
+              color="amber"
+              dense
+              readonly
+              length="1"
+              size="14"
+            ></v-rating
+            >즐겨찾기</v-btn
+          >
+          <v-btn v-else @click="cancelFavorite"
+            ><v-rating
+              :value="1"
+              color="amber"
+              dense
+              readonly
+              length="1"
+              size="14"
+            ></v-rating
+            >즐겨찾기</v-btn
+          >
+        </div>
       </div>
-
 
       <v-data-table
         dense
@@ -38,11 +60,13 @@
 </template>
 
 <script>
+import { FavoriteService } from "@/service/favorite.service";
 export default {
   name: "DealSideBar",
-  props: ["deals", "aptName"],
+  props: ["deals", "aptName", "aptCode"],
   data() {
     return {
+      isFavorite: false,
       headers: [
         {
           text: "거래가",
@@ -109,6 +133,35 @@ export default {
         return `${c % 10000} 만`;
       }
     },
+    async registerFavorite() {
+      const data = await FavoriteService.registerFavorite({
+        aptCode: this.aptCode,
+      });
+      if (data?.status == "success") {
+        this.isFavorite = true;
+      } else {
+        alert("등록 실패");
+      }
+    },
+    async cancelFavorite() {
+      const data = await FavoriteService.cancelFavorite(this.aptCode);
+      if (data?.status == "success") {
+        this.isFavorite = false;
+      } else {
+        alert("등록 실패");
+      }
+    },
+  },
+  async created() {
+    const data = await FavoriteService.checkHouse(this.aptCode);
+    if (data?.status == "success") {
+      console.log(data);
+      this.isFavorite = true;
+    } else if (data?.status == "notfavorite") {
+      console.log("즐겨찾기 아님");
+    } else {
+      alert("불러오기 실패");
+    }
   },
 };
 </script>
