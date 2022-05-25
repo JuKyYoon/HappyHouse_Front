@@ -6,7 +6,7 @@
           <div class="title">회원 가입</div>
           <!-- <label>아이디</label> -->
           <v-text-field
-            label="id"
+            label="아이디"
             hide-details="auto"
             :rules="passwordRules"
             v-model.trim="userid"
@@ -18,12 +18,13 @@
             id="id_check"
             type="button"
             value="ID 중복체크"
+            :disabled="availId"
             @click="idCheck"
           />
 
           <!-- <label>비밀번호</label> -->
           <v-text-field
-            label="password"
+            label="비밀번호"
             type="password"
             hide-details="auto"
             :rules="passwordRules"
@@ -33,7 +34,7 @@
           ></v-text-field>
           <!-- <label>이름</label> -->
           <v-text-field
-            label="username"
+            label="이름"
             hide-details="auto"
             :rules="textRules"
             v-model.trim="username"
@@ -42,7 +43,7 @@
           ></v-text-field>
           <!-- <label>이메일</label> -->
           <v-text-field
-            label="email"
+            label="이메일"
             hide-details="auto"
             :rules="emailRules"
             class="sign_input"
@@ -51,7 +52,7 @@
           ></v-text-field>
           <!-- <label>전화번호</label> -->
           <v-text-field
-            label="mobile"
+            label="전화번호"
             hide-details="auto"
             :rules="textRules"
             class="sign_input"
@@ -62,7 +63,7 @@
             <button
               id="register"
               class="button_signup"
-              disabled="disabled"
+              :disabled="!availId"
               @click="signUp"
             >
               등록
@@ -87,6 +88,7 @@ export default {
       email: "",
       mobile: "",
       msg: "",
+      availId : false,
       passwordRules: [
         (value) => !!value || "Required.",
         (value) => (value || "").length >= 4 || "Min 4 characters",
@@ -107,6 +109,11 @@ export default {
       ],
     };
   },
+  watch: {
+    userid: function() {
+      this.availId = false;
+    }
+  },
   methods: {
     async idCheck() {
       if (this.userid.length < 4 || this.userid.length > 50) {
@@ -117,7 +124,7 @@ export default {
       if (data?.status == "success") {
         if (data?.result == "yes") {
           this.msg = "사용 가능한 아이디";
-          document.getElementById("register").disabled = false;
+          this.availId = true;
         } else {
           this.msg = "사용 불가능한 아이디";
         }
@@ -175,22 +182,21 @@ export default {
   z-index: 1;
   max-width: 100%;
   margin: 0 auto;
-  height: auto;
-  min-height: 100%;
   padding-bottom: 70px;
   text-align: center;
 }
 
 .input-form {
   width: 360px;
-  padding: 7% 0 0;
+  /* padding: 7% 0 0; */
   margin: auto;
+  background-color: #ebecf0;
 }
 
 .form {
   position: relative;
   z-index: 1;
-  background: #ffffff;
+  /* background: #ffffff; */
   max-width: 360px;
   margin: 0 auto 100px;
   padding: 45px;
@@ -208,7 +214,7 @@ export default {
   margin: 0px 0 0px;
 }
 #id_check {
-  background: #252a6e;
+  background: #6d7491;
   color: white;
   width: 40%;
   margin: 5px 0 0;
@@ -217,10 +223,15 @@ export default {
   padding: 5px;
 }
 
+#id_check:disabled {
+  background: #e1e3e9;
+
+}
+
 .form .sign_input {
   font-family: "Roboto", sans-serif;
   outline: 0;
-  background: #f2f2f2;
+  /* background: #f2f2f2; */
   width: 100%;
   border: 0;
   margin: 15px 0 0;
@@ -235,15 +246,19 @@ export default {
   text-transform: uppercase;
   outline: 0;
   margin: 15px 0 5px;
-  background: #252a6e;
+  background: #6d7491;
   width: 100%;
   border: 0;
   padding: 15px;
   color: #ffffff;
   font-size: 14px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
+}
+
+.form button:hover {
+  background: #414557;
 }
 
 #register:disabled {

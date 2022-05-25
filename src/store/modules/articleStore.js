@@ -15,7 +15,7 @@ const boardStore = {
         modify_date: "",
         solved: 0,
         view_count: 0,
-        category: "",
+        category: "자유",
       },
       editArticle: {
         title: "",
@@ -47,7 +47,7 @@ const boardStore = {
         modify_date: "",
         solved: 0,
         view_count: 0,
-        category: "",
+        category: "자유",
       };
     },
     updateContent(state, payload) {

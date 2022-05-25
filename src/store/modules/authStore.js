@@ -8,13 +8,15 @@ const authStore = {
     accessToken: null,
     userid: "",
     isLogin: false,
+    admin: false
   },
   getters: {},
   mutations: {
-    setUserId(state, { accessToken, userid }) {
+    setUserId(state, { accessToken, userid, admin }) {
       state.accessToken = accessToken;
       state.userid = userid;
       state.isLogin = true;
+      state.admin = admin;
     },
     setAccessToken(state, payload) {
       state.accessToken = payload;
@@ -23,6 +25,7 @@ const authStore = {
       state.accessToken = null;
       state.userid = "";
       state.isLogin = false;
+      state.admin = false;
     },
   },
   actions: {
@@ -32,6 +35,7 @@ const authStore = {
         commit("setUserId", {
           accessToken: data.result.accessToken,
           userid: jwt_decode(data.result.accessToken).userid,
+          admin: data.result?.role == "ROLE_ADMIN" ? true : false
         });
         alert("로그인 성공");
         router.push("/")
@@ -71,7 +75,9 @@ const authStore = {
       }
       commit("deleteAuth");
       alert("로그아웃")
-      router.push("/")
+      if(router.history.current.path != '/'){
+        router.push("/")
+      }
     },
     async refresh({ commit }, { accessToken }) {},
   },

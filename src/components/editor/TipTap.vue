@@ -20,6 +20,15 @@
         v-model.trim="article.userid"
         :readonly="true"
       ></v-text-field>
+
+      <v-select
+        v-if="type != 'qna'"
+        :disabled="!editMode"
+        :items="admin ? adminCategory : userCategory"
+        label="카테고리"
+        v-model="category"
+      >
+      </v-select>
     </v-container>
 
     <v-container>
@@ -34,103 +43,103 @@
             :class="{ 'is-active': isActive.bold() }"
             @click.prevent="commands.bold"
           >
-            bold
+            <v-icon>mdi-format-bold</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.italic() }"
             @click.prevent="commands.italic"
           >
-            italic
+            <v-icon>mdi-format-italic</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.strike() }"
             @click.prevent="commands.strike"
           >
-            strikethrough
+            <v-icon>mdi-format-strikethrough</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.underline() }"
             @click.prevent="commands.underline"
           >
-            underline
+            <v-icon>mdi-format-underline</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.code() }"
             @click.prevent="commands.code"
           >
-            code
+            <v-icon>mdi-code-tags</v-icon>
           </button>
-          <button
+          <!-- <button
             class="menubar__button"
             :class="{ 'is-active': isActive.code_block() }"
             @click.prevent="commands.code_block"
           >
-            file-code
-          </button>
+            할줄 통째로 코드 블락
+          </button> -->
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.paragraph() }"
             @click.prevent="commands.paragraph"
           >
-            paragraph
+            <v-icon>mdi-format-paragraph</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.heading({ level: 1 }) }"
             @click.prevent="commands.heading({ level: 1 })"
           >
-            H1
+            <v-icon>mdi-format-header-1</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.heading({ level: 2 }) }"
             @click.prevent="commands.heading({ level: 2 })"
           >
-            H2
+            <v-icon>mdi-format-header-2</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.heading({ level: 3 }) }"
             @click.prevent="commands.heading({ level: 3 })"
           >
-            H3
+            <v-icon>mdi-format-header-3</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.bullet_list() }"
             @click.prevent="commands.bullet_list"
           >
-            list-ul
+            <v-icon>mdi-format-list-bulleted</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.ordered_list() }"
             @click.prevent="commands.ordered_list"
           >
-            list-ol
+            <v-icon>mdi-format-list-numbered</v-icon>
           </button>
           <button
             class="menubar__button"
             :class="{ 'is-active': isActive.blockquote() }"
             @click.prevent="commands.blockquote"
           >
-            quote-left
+            <v-icon>mdi-format-quote-open</v-icon>
           </button>
           <button
             class="menubar__button"
             @click.prevent="commands.horizontal_rule"
           >
-            구분선 추가
+            <v-icon>mdi-minus</v-icon>
           </button>
           <button class="menubar__button" @click.prevent="commands.undo">
-            undo
+            <v-icon>mdi-arrow-u-left-bottom-bold</v-icon>
           </button>
           <button class="menubar__button" @click.prevent="commands.redo">
-            redo
+            <v-icon>mdi-arrow-u-right-bottom-bold</v-icon>
           </button>
         </div>
       </editor-menu-bar>
@@ -229,6 +238,9 @@ export default {
   props: ["mode", "create", "type"],
   data() {
     return {
+      userCategory: ["자유"],
+      adminCategory: ["공지", "자유"],
+      category: "자유",
       doSolve: false,
       cancelSolve: false,
       solveState: false,
@@ -245,7 +257,7 @@ export default {
   },
   computed: {
     ...mapState("articleStore", ["article"]),
-    ...mapState("authStore", ["userid"]),
+    ...mapState("authStore", ["userid", "admin"]),
   },
   async created() {
     const idx = this.$route.params.idx;
@@ -254,9 +266,10 @@ export default {
       this.initArticle(idx);
     } else {
       await this.getArticle({ idx: idx, type: this.type });
-      if(this.article.userid == this.userid) {
+      if (this.article.userid == this.userid) {
         this.myArticle = true;
       }
+      this.category = this.article.category;
       this.editor.setContent(this.article.content);
     }
 
@@ -334,7 +347,7 @@ export default {
       } else {
         data = await BoardService.createBoard({
           title: this.article.title,
-          category: "자유",
+          category: this.category,
           content: articleContent,
         });
       }
@@ -367,6 +380,7 @@ export default {
             idx: this.article.idx,
             title: this.article.title,
             content: this.article.content,
+            category: this.category,
           },
           type: this.type,
         }); // 서버에 업데이트 반영
@@ -429,14 +443,17 @@ export default {
   box-shadow: 0px 0px 0px 0.2rem rgb(0 123 255 / 25%);
 }
 .menubar__button {
-  border: 1px solid black;
+  border: 0px solid black;
   border-radius: 0.2rem;
   margin: 5px;
   padding: 5px;
 }
+.menubar__button:hover {
+  background-color: #c4c7d3;
+}
+
 .is-active {
-  color: white;
-  background-color: black;
+  background-color: #6d7491;
 }
 
 .main-editor {

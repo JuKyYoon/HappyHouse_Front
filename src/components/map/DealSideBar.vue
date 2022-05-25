@@ -1,17 +1,17 @@
 <template>
   <v-card class="mx-auto map-right-side">
     <v-navigation-drawer
-      class="deep-purple accent-4"
       dark
       permanent
       width="500"
+      color="#575d74"
     >
       <div class="deal-side-bar-apt-title">
         <div class="deal-side-bar-apt-title-text">
           {{ aptName }}
         </div>
         <div>
-          <v-btn v-if="!isFavorite" @click="registerFavorite"
+          <v-btn v-if="!isFavorite" @click="registerFavorite" color="#2b2e3a"
             ><v-rating
               :value="0"
               color="amber"
@@ -22,7 +22,7 @@
             ></v-rating
             >즐겨찾기</v-btn
           >
-          <v-btn v-else @click="cancelFavorite"
+          <v-btn v-else @click="cancelFavorite" color="#2b2e3a"
             ><v-rating
               :value="1"
               color="amber"
@@ -36,8 +36,8 @@
         </div>
       </div>
 
-      <v-tabs v-model="tab" align-with-title>
-        <v-tabs-slider color="yellow"></v-tabs-slider>
+      <v-tabs v-model="tab" align-with-title background-color="#6d7491">
+        <v-tabs-slider color="#2b2e3a" si></v-tabs-slider>
 
         <v-tab>거래내역</v-tab>
         <v-tab>가격변동그래프</v-tab>
@@ -47,7 +47,7 @@
         <v-tab-item>
           <v-data-table
             dense
-            dark
+            color="#ebecf0"
             :headers="headers"
             :items="deals"
             item-key="no"
@@ -57,7 +57,7 @@
               <span>{{ covertMoney(item.money) }}원</span>
             </template>
             <template v-slot:[`item.area`]="{ item }">
-              <span>{{ Math.ceil(item.area, 1) }}평</span>
+              <span>{{ Math.ceil(item.area, 1) }}㎡</span>
             </template>
           </v-data-table>
         </v-tab-item>
@@ -65,7 +65,7 @@
         <v-tab-item>
           <v-sparkline
             :value="value"
-            color="black"
+            color="#575d74"
             height="100"
             padding="24"
             stroke-linecap="round"
@@ -79,7 +79,7 @@
 
       <template v-slot:append>
         <div class="pa-2">
-          <v-btn v-on:click="closeOveray"> CLOSE </v-btn>
+          <v-btn v-on:click="closeOveray" color="#2b2e3a">닫기</v-btn>
         </div>
       </template>
     </v-navigation-drawer>

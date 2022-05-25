@@ -12,7 +12,7 @@
       :height="height"
       ref="bar"
     />
-    <p style="display:none">{{ dataState }}</p>
+    <p style="display: none">{{ dataState }}</p>
   </div>
 </template>
 
@@ -95,11 +95,26 @@ export default {
     console.log(this.$refs.bar.getCurrentChart());
     this.$refs.bar.getCurrentChart().data.datasets[0].data =
       this.chartData.datasets.data;
+    this.$refs.bar.getCurrentChart().data.datasets[0].backgroundColor =
+      this.chartData.datasets.data.map((d) => {
+        if (d < 60) {
+          return "#c4c7d3";
+        } else if (d < 70) {
+          return "#8a90a7";
+        } else if (d < 1000) {
+          return "#6d7491";
+        } else if (d < 10000) {
+          return "#575d74";
+        } else {
+          return "#414557";
+        }
+      });
+
     this.$refs.bar.updateChart();
   },
   watch: {
     chartData: function () {
-      console.log("test");
+      // console.log("test");
     },
   },
 };

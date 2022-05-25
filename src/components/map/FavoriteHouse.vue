@@ -65,6 +65,7 @@ export default {
     },
     favoriteClick(item) {
       console.log(item.lat, item.lng);
+      item.map_level = 1
       this.$emit("moveToAddress", item);
     },
   },

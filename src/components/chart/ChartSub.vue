@@ -4,10 +4,10 @@
       <v-dialog
       v-model="loadingDialog"
       persistent
-      width="300"
+      width="500"
     >
       <v-card
-        color="primary"
+        color="#6d7491"
         dark
       >
         <v-card-text>
@@ -15,6 +15,7 @@
           <v-progress-linear
             indeterminate
             color="white"
+            background-color="#575d74"
             class="mb-0"
           ></v-progress-linear>
         </v-card-text>
@@ -24,7 +25,7 @@
       <v-container>
         <v-select
           :items="years"
-          label="2021"
+          label="2021년"
           dense
           solo
           @change="yearChange"
@@ -34,7 +35,7 @@
       <v-container fluid>
         <v-row dense>
           <v-col :cols="12"
-            ><v-card>
+            ><v-card elevation="10">
               <v-card-text>
                 {{ this.year }}년 아파트 매매횟수
                 <bar-chart-vue
@@ -62,7 +63,7 @@
           </v-col>
 
           <v-col :cols="6">
-            <v-card>
+            <v-card elevation="10">
               <v-card-text>
                 {{ this.year }}년 월별 아파트 매매횟수
                 <line-chart-vue
@@ -88,9 +89,37 @@
               </v-card-actions>
             </v-card>
           </v-col>
+
+          <v-col :cols="6">
+            <v-card elevation="10">
+              <v-card-text>
+                {{ this.year }}년 거래 아파트 평균 면적
+                <bar-chart-vue
+                  :chartData="chartData[this.year].chartData4"
+                  :dataState="dataState"
+                ></bar-chart-vue>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <v-btn icon>
+                  <v-icon>mdi-heart</v-icon>
+                </v-btn>
+
+                <v-btn icon>
+                  <v-icon>mdi-bookmark</v-icon>
+                </v-btn>
+
+                <v-btn icon>
+                  <v-icon>mdi-share-variant</v-icon>
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
           
           <v-col :cols="12"
-            ><v-card>
+            ><v-card elevation="10">
               <v-card-text>
                 {{ this.year }}년 아파트 지역별 평균가
                 <bar-chart-vue
@@ -145,10 +174,11 @@ export default {
         2021: {
           chartData1: {
             labels: [],
+            minBarLength: 10,
             datasets: [
               {
                 label: "구별 아파트 매매횟수",
-                backgroundColor: "#f87979",
+                backgroundColor: "#575d74",
                 data: [],
               },
             ],
@@ -158,17 +188,29 @@ export default {
             datasets: [
               {
                 label: "월별 아파트 매매횟수",
-                backgroundColor: "#f87979",
+                backgroundColor: "#575d74",
                 data: [],
               },
             ],
           },
           chartData3: {
             labels: [],
+            minBarLength: 10,
             datasets: [
               {
                 label: "구별 아파트 평균가",
-                backgroundColor: "#f87979",
+                backgroundColor: "#575d74",
+                data: [],
+              },
+            ],
+          },
+          chartData4: {
+            labels: [],
+            minBarLength: 10,
+            datasets: [
+              {
+                label: "평균 전용면적(㎡)",
+                backgroundColor: "#575d74",
                 data: [],
               },
             ],
@@ -184,7 +226,7 @@ export default {
     }
     const data = await ChartService.getCharts(this.sidoName.trim());
     if (data?.status == "success") {
-      console.log(data.result);
+      // console.log(data.result);
       this.chartData['2021'].chartData2.datasets.data = data.result.countByMonth.map(d=>d.value)
       this.chartData['2021'].chartData2.labels = data.result.countByMonth.map(d=>d.label)
 
@@ -194,11 +236,15 @@ export default {
       this.chartData['2021'].chartData3.datasets.data = data.result.getAvgByGu.map(d=>d.value)
       this.chartData['2021'].chartData3.labels = data.result.getAvgByGu.map(d=>d.label)
 
+      this.chartData['2021'].chartData4.datasets.data = data.result.getAvgAreaByGu.map(d=>d.value)
+      this.chartData['2021'].chartData4.labels = data.result.getAvgAreaByGu.map(d=>d.label)
+
       console.log('data 변경')
       this.dataState=true;
       this.loadingDialog = false;
     } else {
       alert("서버 오류");
+      this.$router.push("/chart/main")
     }
   },
   methods: {
@@ -207,7 +253,7 @@ export default {
     },
   },
   beforeDestroy(){
-    console.log("close")
+    // console.log("close")
   }
 };
 </script>

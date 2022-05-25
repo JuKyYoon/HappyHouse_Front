@@ -3,7 +3,7 @@
     <v-container>
       <v-select
         :items="years"
-        label="2021"
+        label="2021년"
         dense
         solo
         @change="yearChange"
@@ -13,7 +13,7 @@
     <v-container fluid>
       <v-row dense>
         <v-col :cols="12"
-          ><v-card>
+          ><v-card elevation="10">
             <v-card-text>
               {{ this.year }}년 아파트 매매횟수
               <bar-chart-vue
@@ -40,7 +40,7 @@
         </v-col>
 
         <v-col :cols="6">
-          <v-card>
+          <v-card elevation="10">
             <v-card-text>
               {{ this.year }}년 월별 아파트 매매횟수
               <line-chart-vue
@@ -66,7 +66,7 @@
           </v-card>
         </v-col>
         <v-col :cols="6">
-          <v-card>
+          <v-card elevation="10">
             <v-card-text>
               {{ this.year }}년 아파트 평균 매매가
               <bar-chart-vue
@@ -124,8 +124,23 @@ export default {
             labels: sidoLabel,
             datasets: [
               {
+                minBarLength: 10,
                 label: "아파트 매매횟수",
-                backgroundColor: "#f87979",
+                backgroundColor: dealCountEachSido.map((d) => {
+                  if( d < 10000 ) {
+                    return "#e1e3e9"
+                  } else if (d < 20000) {
+                    return "#c4c7d3"
+                  } else if  ( d < 30000) {
+                    return "#a7abbd"
+                  } else if ( d < 40000) {
+                    return "#8a90a7"
+                  } else if ( d < 100000) {
+                    return "#6d7491"
+                  } else {
+                    return "#575d74"
+                  }
+                }),
                 data: dealCountEachSido,
               },
             ],
@@ -135,7 +150,7 @@ export default {
             datasets: [
               {
                 label: "월별 매매횟수",
-                backgroundColor: "#f87979",
+                backgroundColor: "#575d74",
                 data: dealCountEachMonth,
               },
             ],
@@ -145,7 +160,7 @@ export default {
             datasets: [
               {
                 label: "평균 매매가 (만원)",
-                backgroundColor: "#f87979",
+                backgroundColor: "#575d74",
                 data: dealAvgMoneyEachSido,
               },
             ],

@@ -19,7 +19,7 @@
           </v-dialog>
         </v-col>
         <v-col cols="5">
-          <v-card class="card-login mx-a">
+          <v-card class="card-login mx-a" elevation="3" color="#ebecf0">
             <v-card-title>Login</v-card-title>
             <v-divider></v-divider>
             <v-card-text class="pa-5">
@@ -32,31 +32,33 @@
                 <v-text-field
                   color="green darken-1"
                   v-model.trim="password"
+                  type="password"
                   label="Password"
                 ></v-text-field>
-                <v-btn class="green darken-1" type="submit" large dark
-                  >로그인</v-btn
-                >
-                <v-btn :href="naverApi">
-                  <img height='50' src='http://static.nid.naver.com/oauth/small_g_in.PNG'/>
+
+                <v-btn class="sign-button login-btn" color="#6d7491" type="submit" dark style="width:100%">로그인</v-btn>
+
+                <v-btn class="sign-button signup-btn" color="#6d7491" to="/user/signup" dark style="width:100%">회원가입</v-btn>
+
+                <div style="display:flex; justify-content:center">
+                <v-btn width="131" height="50" :href="naverApi" style="margin-right: 10px">
+                  <img height="50" src='http://static.nid.naver.com/oauth/small_g_in.PNG'/>
                 </v-btn>
 
-                <v-btn :to="{name: `UserFindPw`}">
-                  비밀번호 찾기
-                </v-btn>
+                <v-btn :to="{ name: `UserFindPw` }" height="50"> 비밀번호 찾기 </v-btn>
+                </div>
+
               </v-form>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-
-
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapActions } from "vuex";
 export default {
   name: "UserLogin",
   data() {
@@ -68,13 +70,21 @@ export default {
     };
   },
   computed: {
-    naverApi () {
+    naverApi() {
       let client_id = process.env.VUE_APP_NAVERLOGIN_CLIENT_ID;
       let redirect_uri = process.env.VUE_APP_NAVERLOGIN_REDIRECT_URI;
       let state = process.env.VUE_APP_NAVERLOGIN_RANDOM_STATE;
       let naver_uri = process.env.VUE_APP_NAVERLOGIN_URI;
-      return naver_uri + '&client_id=' + client_id + '&redirect_uri=' + redirect_uri + '&state=' + state;
-    }
+      return (
+        naver_uri +
+        "&client_id=" +
+        client_id +
+        "&redirect_uri=" +
+        redirect_uri +
+        "&state=" +
+        state
+      );
+    },
   },
   methods: {
     ...mapActions("authStore", ["login"]),
@@ -93,9 +103,9 @@ export default {
 </script>
 
 <style scoped>
-.back {
-  background-image: url("https://i.ytimg.com/vi/QN7l3ydXvx0/maxresdefault.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
-}
+.sign-button {
+  margin-bottom : 10px;
+  transition: all 0.1s ease-in-out;
+} 
+
 </style>

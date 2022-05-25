@@ -6,6 +6,7 @@
         v-model="drawer"
         :mini-variant.sync="mini"
         permanent
+        color="#ebecf0"
       >
         <v-list-item class="px-2">
           <v-list-item-avatar>
@@ -217,7 +218,7 @@ import {
   specialMarkerImage,
   markerInfoWindow,
   storeMarkerInfoWindow,
-  storeMarkerImage
+  storeMarkerImage,
 } from "@/util/kakaoMapMarker.js";
 import { mapState } from "vuex";
 
@@ -463,14 +464,10 @@ export default {
         let marker = new kakao.maps.Marker({
           position: new kakao.maps.LatLng(Number(store.lat), Number(store.lng)),
           map: this.kakaomap,
-          image: storeMarkerImage()
+          image: storeMarkerImage(),
         });
 
-        storeMarkerInfoWindow(
-          store,
-          marker,
-          this.kakaomap
-        );
+        storeMarkerInfoWindow(store, marker, this.kakaomap);
         this.storeMarkers.push(marker);
       });
     },
@@ -514,6 +511,14 @@ export default {
     },
   },
   watch: {
+    storeLoad: function () {
+      if (!this.storeLoad) {
+        this.storeMarkers.forEach((marker) => {
+          marker.setMap(null);
+        });
+        this.storeMarkers = [];
+      }
+    },
     specialSearchDialog: function () {
       if (this.specialSearchDialog) {
         this.favoriteDialog = false;
@@ -646,6 +651,7 @@ export default {
 
 <style>
 #map {
+  width: 100%;
   height: 80vh;
 }
 
@@ -666,11 +672,11 @@ export default {
   margin-bottom: 5px;
   margin-left: -150px;
   padding: 7px;
-  width: 300px;
-  height: 150px;
+  width: 350px;
+  height: 180px;
   -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
   background-color: #000;
   background-color: hsla(0, 0%, 20%, 0.9);
   color: #fff;
@@ -682,13 +688,16 @@ export default {
 
 .custom-overlay-title {
   height: 40px;
+  font-size: 1.2em;
 }
 
 .custom-overlay-close-button {
   position: absolute;
+  bottom: 10px;
   width: 40px;
   right: 10px;
   background-color: white;
+  border-radius: 10px;
   color: black;
 }
 

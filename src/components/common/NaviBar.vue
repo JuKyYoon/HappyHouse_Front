@@ -21,41 +21,44 @@
       elevation="0"
       fixed
       dense
-      src="https://picsum.photos/1920/1080?random"
+      color="#ebecf0"
       fade-img-on-scroll
       shrink-on-scroll
       height="70"
     >
       <span class="d-flex d-sm-none appbar-component">
-        <v-app-bar-nav-icon style="color: white" @click="sidebar = !sidebar">
+        <v-app-bar-nav-icon style="color: black" @click="sidebar = !sidebar">
         </v-app-bar-nav-icon>
       </span>
-
-      <v-icon x-large color="white" class="appbar-component">mdi-home</v-icon>
-      <span class="d-none d-sm-flex appbar-component">
+      
+      <v-icon x-large color="black" class="appbar-component home-button" @click="goHome" style="margin-right:10px">
+        mdi-home
+      </v-icon>
+      
+      <span class="d-none d-sm-flex appbar-component" v-if="isLogin">
         <v-btn
           depressed
           class="router-button"
           active-class="active-router"
+          color="transparent"
+          
           v-for="item in items"
           :key="item.title"
           :to="item.path"
         >
-          <v-icon left dark>{{ item.icon }}</v-icon>
+          <v-icon left dark size="20">{{ item.icon }}</v-icon>
           {{ item.title }}
         </v-btn>
       </span>
-
       <v-spacer></v-spacer>
 
-      <span class="appbar-component" v-if="isLogin">
-        <v-btn @click="logout">로그아웃</v-btn>
-        
-        <v-btn to="/user/info"><v-icon>mdi-account-circle</v-icon></v-btn>
+      <span class="appbar-component" v-if="isLogin" >
+        <v-btn text @click="logout">LogOut</v-btn>
+        <v-btn text to="/user/info">Admin<v-icon>mdi-account-circle</v-icon></v-btn>
       </span>
         <span class="appbar-component" v-else>
-        <v-btn to="/user/signup">회원가입</v-btn>
-        <v-btn to="/user/login">로그인</v-btn>
+        <v-btn text to="/user/signup">SIGN UP</v-btn>
+        <v-btn text to="/user/login">SIGN IN</v-btn>
       </span>
     </v-app-bar>
   </div>
@@ -72,18 +75,17 @@ export default {
       group: null,
       drawer: false,
       items: [
-        { title: "Home", path: "/", icon: "mdi-view-dashboard" },
-        { title: "Board", path: "/board", icon: "mdi-gavel" },
-        { title: "QNA", path: "/qna", icon: "mdi-account-box" },
+        { title: "Board", path: "/board", icon: "mdi-clipboard-text-outline" },
+        { title: "QNA", path: "/qna", icon: "mdi-message-question" },
         // { title: "Calendar", path: "/about", icon: "mdi-gavel" },
-        { title: "Map", path: "/map/main", icon: "mdi-gavel"},
-        { title: "Chart", path: "/chart/main", icon: "mdi-gavel"},
+        { title: "Map", path: "/map/main", icon: "mdi-map-legend"},
+        { title: "Chart", path: "/chart/main", icon: "mdi-chart-bar"},
         // { title: "customMap", path: "/map/custom", icon: "mdi-gavel"}
       ],
     };
   },
   computed: {
-    ...mapState("authStore", ['userid', 'isLogin'])
+    ...mapState("authStore", ['userid', 'isLogin', 'admin'])
   },
   watch: {
     group() {
@@ -92,6 +94,11 @@ export default {
   },
   methods: {
     ...mapActions("authStore", ["logout"]),
+    goHome() {
+      if(this.$route.path !== "/") {
+        this.$router.push("/")
+      }
+    }
   },
   created() {
     // console.log(this.userid)
@@ -121,15 +128,20 @@ export default {
   margin-bottom: auto;
 }
 
+.home-button:hover {
+  color: #87909A   !important;
+}
+
 .router-button {
   margin-right: 10px;
+  transition: all 0.2s ease-in-out;
 }
 .router-button:hover {
-  background-color: red !important;
+  background-color: #E7E6ED  !important;
 }
 .active-router {
-  background-color: #0fffff !important;
-  color: white !important;
+  /* background-color: #0fffff !important; */
+  /* color:  !important; */
 }
 
 /* header:hover {

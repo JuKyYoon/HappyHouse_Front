@@ -38,13 +38,12 @@ export default {
   position: fixed;
   margin-top: 130px;
   margin-left: 50px;
-  height: 320px !important;
+  height: 330px !important;
 }
 
 .main-content {
   padding-top: 100px !important;
-
-  background-color: skyblue;
+  background-color: #ebecf0;
   width: 100%;
   height: 100%;
 }

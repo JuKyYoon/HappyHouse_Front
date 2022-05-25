@@ -11,11 +11,12 @@
         ></v-text-field>
       </v-card-title>
       <v-data-table
-        :headers="headers"
+        :headers="typeHeaders"
         :items="board_list"
         :search="search"
         class="elevation-1"
         :loading="!dataState"
+        :item-class="itemRowBackground"
         loading-text="Loading... Please wait"
         @click:row="detailClick"
         @page-count="pageCount = $event"
@@ -23,6 +24,9 @@
         :items-per-page="itemsPerPage"
         hide-default-footer
       >
+        <template v-slot:[`item.create_date`]="{ item }">
+          {{ dateFormat(item.create_date) }}
+        </template>
         <template v-slot:[`item.solved`]="{ item }">
           <v-chip
             class="ma-2"
@@ -44,6 +48,7 @@
 </template>
 
 <script>
+import dayjs from "dayjs";
 import { QnaService } from "@/service/qna.service.js";
 import { BoardService } from "@/service/board.service.js";
 export default {
@@ -57,7 +62,7 @@ export default {
     } else {
       const result = await BoardService.getAllBoard();
       this.dataState = true;
-      this.board_list = result.result
+      this.board_list = result.result;
     }
   },
   methods: {
@@ -72,16 +77,40 @@ export default {
         this.$router.push({ name: "BoardDetail", params: { idx: item.idx } });
       }
     },
+    itemRowBackground: function (item) {
+      return item.category == "공지" ? "notice" : "not-notice";
+    },
+    dateFormat(date) {
+      if (date == undefined) {
+        return "";
+      }
+      let diffDate = this.nowTime.diff(dayjs(date), "d");
+      if(diffDate == 0) {
+        return `${this.nowTime.diff(dayjs(date), "h")}시간 전`;
+      } else {
+        return dayjs(date).format("YYYY년 MM월 DD일");
+      }
+    },
+  },
+  computed: {
+    typeHeaders() {
+      if (this.type == "qna") {
+        return this.qnaHeaders;
+      } else {
+        return this.boardHeaders;
+      }
+    },
   },
   data() {
     return {
       page: 1,
+      nowTime: dayjs(),
       pageCount: 0,
       itemsPerPage: 10,
       dataState: false,
       search: "",
       board_list: [],
-      headers: [
+      qnaHeaders: [
         {
           text: "글번호",
           sortable: true,
@@ -108,9 +137,38 @@ export default {
           value: "create_date",
         },
         {
-          text: this.type == "qna" ? "해결" : "카테고리",
+          text: "해결",
           sortable: true,
-          value: this.type == "qna" ? "solved" : "category",
+          value: "solved",
+        },
+      ],
+      boardHeaders: [
+        {
+          text: "글번호",
+          sortable: true,
+          value: "idx",
+          width: 100,
+        },
+        {
+          text: "카테고리",
+          sortable: false,
+          value: "category",
+          width: 100,
+        },
+        {
+          text: "제목",
+          sortable: true,
+          value: "title",
+        },
+        {
+          text: "작성자",
+          sortable: true,
+          value: "userid",
+        },
+        {
+          text: "작성일",
+          sortable: true,
+          value: "create_date",
         },
       ],
     };
@@ -118,4 +176,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.notice {
+  background-color: #a7abbd;
+}
+</style>

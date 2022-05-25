@@ -96,9 +96,9 @@ export default {
 
   },
   updated() {
-    console.log("updated", this.$refs.line.getCurrentChart().data.datasets[0].data)
+    // console.log("updated", this.$refs.line.getCurrentChart().data.datasets[0].data)
     this.$refs.line.getCurrentChart().data.datasets[0].data = this.chartData.datasets.data;
-    console.log("updated", this.$refs.line.getCurrentChart().data.datasets[0].data)
+    // console.log("updated", this.$refs.line.getCurrentChart().data.datasets[0].data)
   
     this.$refs.line.updateChart();
   },

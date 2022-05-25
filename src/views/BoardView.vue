@@ -1,5 +1,5 @@
 <template>
-  <router-view type="board"></router-view>
+  <router-view type="board" style="margin-left:10px; margin-right:10px"></router-view>
 </template>
 
 <script>
