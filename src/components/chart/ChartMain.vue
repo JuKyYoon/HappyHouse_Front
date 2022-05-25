@@ -43,8 +43,34 @@
           <v-card>
             <v-card-text>
               {{ this.year }}년 월별 아파트 매매횟수
-              <bar-chart-vue
+              <line-chart-vue
                 :chartData="chartData[this.year].chartData2"
+              ></line-chart-vue>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn icon>
+                <v-icon>mdi-heart</v-icon>
+              </v-btn>
+
+              <v-btn icon>
+                <v-icon>mdi-bookmark</v-icon>
+              </v-btn>
+
+              <v-btn icon>
+                <v-icon>mdi-share-variant</v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+        <v-col :cols="6">
+          <v-card>
+            <v-card-text>
+              {{ this.year }}년 아파트 평균 매매가
+              <bar-chart-vue
+                :chartData="chartData[this.year].chartData3"
               ></bar-chart-vue>
             </v-card-text>
 
@@ -72,16 +98,21 @@
 
 <script>
 import BarChartVue from "./assets/BarChart.vue";
-import { sidoMenu } from "@/const/const";
-import { dealCountEachSido, dealCountEachMonth } from "@/const/data/sido.js";
-
+import { sidoMenu, monthLabel } from "@/const/const";
+import {
+  dealCountEachSido,
+  dealCountEachMonth,
+  dealAvgMoneyEachSido,
+} from "@/const/data/sido.js";
+import LineChartVue from "./assets/LineChart.vue";
+const sidoLabel = sidoMenu.map((s) => {
+  return s.title;
+});
 export default {
   name: "ChartMain",
   components: {
     BarChartVue,
-  },
-  mounted() {
-    console.log();
+    LineChartVue
   },
   data() {
     return {
@@ -90,9 +121,7 @@ export default {
       chartData: {
         2021: {
           chartData1: {
-            labels: sidoMenu.map((s) => {
-              return s.title;
-            }),
+            labels: sidoLabel,
             datasets: [
               {
                 label: "아파트 매매횟수",
@@ -102,25 +131,22 @@ export default {
             ],
           },
           chartData2: {
-            labels: [
-              "1월",
-              "2월",
-              "3월",
-              "4월",
-              "5월",
-              "6월",
-              "7월",
-              "8월",
-              "9월",
-              "10월",
-              "11월",
-              "12월",
-            ],
+            labels: monthLabel,
             datasets: [
               {
                 label: "월별 매매횟수",
                 backgroundColor: "#f87979",
                 data: dealCountEachMonth,
+              },
+            ],
+          },
+          chartData3: {
+            labels: sidoLabel,
+            datasets: [
+              {
+                label: "평균 매매가 (만원)",
+                backgroundColor: "#f87979",
+                data: dealAvgMoneyEachSido,
               },
             ],
           },
@@ -150,6 +176,9 @@ export default {
       this.year = target;
     },
   },
+  beforeDestroy(){
+    console.log("close")
+  }
 };
 </script>
 

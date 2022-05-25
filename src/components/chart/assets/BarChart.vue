@@ -1,19 +1,23 @@
 <template>
-  <Bar
-    :chart-options="chartOptions"
-    :chart-data="chartData"
-    :chart-id="chartId"
-    :dataset-id-key="datasetIdKey"
-    :plugins="plugins"
-    :css-classes="cssClasses"
-    :styles="styles"
-    :width="width"
-    :height="height"
-  />
+  <div>
+    <Bar
+      :chart-options="chartOptions"
+      :chart-data="realChartData"
+      :chart-id="chartId"
+      :dataset-id-key="datasetIdKey"
+      :plugins="plugins"
+      :css-classes="cssClasses"
+      :styles="styles"
+      :width="width"
+      :height="height"
+      ref="bar"
+    />
+    <p style="display:none">{{ dataState }}</p>
+  </div>
 </template>
 
 <script>
-import { Bar } from 'vue-chartjs/legacy'
+import { Bar } from "vue-chartjs/legacy";
 import {
   Chart as ChartJS,
   Title,
@@ -21,56 +25,82 @@ import {
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
-} from 'chart.js'
+  LinearScale,
+} from "chart.js";
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+);
 
 export default {
-  name: 'BarChart',
+  name: "BarChart",
   components: {
-    Bar
+    Bar,
   },
   props: {
     chartId: {
       type: String,
-      default: 'bar-chart'
+      default: "bar-chart",
     },
     datasetIdKey: {
       type: String,
-      default: 'label'
+      default: "label",
     },
     width: {
       type: Number,
-      default: 400
+      default: 400,
     },
     height: {
       type: Number,
-      default: 400
+      default: 400,
     },
     cssClasses: {
-      default: '',
-      type: String
+      default: "",
+      type: String,
     },
     styles: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     plugins: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
-    chartData: {
-
-    }
+    chartData: Object,
+    dataState: Boolean,
   },
   data() {
     return {
       chartOptions: {
         responsive: true,
-        maintainAspectRatio: false
-      }
-    }
-  }
-}
+        maintainAspectRatio: false,
+      },
+    };
+  },
+  computed: {
+    realChartData() {
+      return this.chartData;
+    },
+  },
+  created() {
+    console.log(this.dataState);
+  },
+  updated() {
+    // console.log("updated")
+    console.log(this.$refs.bar.getCurrentChart());
+    this.$refs.bar.getCurrentChart().data.datasets[0].data =
+      this.chartData.datasets.data;
+    this.$refs.bar.updateChart();
+  },
+  watch: {
+    chartData: function () {
+      console.log("test");
+    },
+  },
+};
 </script>

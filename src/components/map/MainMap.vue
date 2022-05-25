@@ -225,7 +225,7 @@ export default {
       }
     },
     moveToAddress(item) {
-      if (item.lat == undefined || item.lng == undefined) {
+      if (!item || item.lat == undefined || item.lng == undefined) {
         return;
       }
       console.log(item.lat, item.lng);
@@ -288,11 +288,17 @@ export default {
       this.searchQuery = "";
       if (this.searchDialog) {
         this.favoriteDialog = false;
+        this.selectedTool = 0;
+      } else {
+        this.selectedTool = -1;
       }
     },
     favoriteDialog: function () {
       if (this.favoriteDialog) {
         this.searchDialog = false;
+        this.selectedTool = 1;
+      } else {
+        this.selectedTool = -1;
       }
     },
     boundary: async function () {

@@ -6,7 +6,7 @@ import { AuthService } from "./auth.service.js";
 // 토큰을 필요로 하는 요청
 const axiosAuth = axios.create({
   baseURL: process.env.VUE_APP_SERVER_URL + "/api",
-  timeout: 3000, // ( ms )
+  timeout: 10000, // ( ms )
   withCredentials: true, // 쿠키 사용
 });
 

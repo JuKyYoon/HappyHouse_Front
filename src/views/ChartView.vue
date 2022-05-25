@@ -59,7 +59,7 @@ export default {
       else if (this.$route.path !== `/chart/${target.id}`) {
         this.$router.push({
           name: "ChartSub",
-          params: { sido: target.id, sidoCode: target.code },
+          params: { sido: target.id, sidoCode: target.code, sidoName: target.title },
         });
       }
     },
