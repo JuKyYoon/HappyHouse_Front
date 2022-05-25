@@ -117,3 +117,5 @@ export const monthLabel = [
   "11월",
   "12월",
 ];
+
+export const KAKAO_SEARCH_QUERY = "https://dapi.kakao.com/v2/local/search/keyword.json?query="

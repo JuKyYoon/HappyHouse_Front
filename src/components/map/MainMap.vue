@@ -37,6 +37,24 @@
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-home-city</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content class="store-checkbox">
+              <v-list-item-title
+                ><v-checkbox
+                  v-model="storeLoad"
+                  dense
+                  label="상가정보 불러오기"
+                  color="orange darken-3"
+                  value="orange darken-3"
+                  hide-details
+                ></v-checkbox
+              ></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
@@ -64,6 +82,29 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog
+        v-model="specialSearchDialog"
+        width="700"
+        content-class="map-search-bar"
+      >
+        <v-card>
+          <v-combobox
+            :items="specialList"
+            @keyup.enter="searchSpecial"
+            dense
+            filled
+            label="카카오 API검색"
+            item-text="address"
+            item-value="latlng"
+            return-object
+            :search-input.sync="specialSearchQuery"
+            menu-props="{'specialSearchDialog': false}"
+            @change="moveToSpecial"
+          >
+          </v-combobox>
+        </v-card>
+      </v-dialog>
+
       <v-dialog v-model="favoriteDialog" max-width="700px">
         <v-card>
           <v-card-title>
@@ -85,20 +126,23 @@
       </v-dialog>
 
       <v-dialog v-model="interestDialog" max-width="700px">
-      <v-card>
-    <v-card-title>
-      <span class="text-h5">관심지역</span>
-    </v-card-title>
-    <v-card-text>
-        <interest-list-vue v-if="interestDialog" @moveToAddress="moveToAddress"></interest-list-vue>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn color="blue darken-1" text @click="interestDialog = false">
-        close
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+        <v-card>
+          <v-card-title>
+            <span class="text-h5">관심지역</span>
+          </v-card-title>
+          <v-card-text>
+            <interest-list-vue
+              v-if="interestDialog"
+              @moveToAddress="moveToAddress"
+            ></interest-list-vue>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="interestDialog = false">
+              close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </v-dialog>
 
       <v-dialog v-model="createInterDialog" max-width="700px">
@@ -166,10 +210,15 @@ import { DealService } from "@/service/deal.service.js";
 import { HouseService } from "@/service/house.service.js";
 import { InterAreaService } from "@/service/interArea.service";
 import { StoreService } from "@/service/store.service";
-import { FavoriteService } from "@/service/favorite.service";
 
 import KakaoMapEvent from "@/util/kakaoMapEvent.js";
-import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
+import {
+  markerImage,
+  specialMarkerImage,
+  markerInfoWindow,
+  storeMarkerInfoWindow,
+  storeMarkerImage
+} from "@/util/kakaoMapMarker.js";
 import { mapState } from "vuex";
 
 import DealSideBarVue from "./DealSideBar.vue";
@@ -180,22 +229,25 @@ export default {
   components: {
     DealSideBarVue,
     FavoriteHouseVue,
-    InterestListVue
+    InterestListVue,
   },
   data() {
     return {
+      storeLoad: false,
       areaSave: false,
       interestDialog: false,
       createInterDialog: false,
       selectedTool: 0,
       favoriteDialog: false,
+      specialSearchDialog: false,
       searchDialog: true, // 검색 창 보이기/숨기기
-      searchQuery: "서울 강남", // 지역 검색
+      searchQuery: "", // 지역 검색
+      specialSearchQuery: "",
       drawer: false, // 도구바 보이기/숨기기
       interAreaName: "",
       items: [
         {
-          title: "지역 검색",
+          title: "주소 검색",
           icon: "mdi-magnify",
           clickAction: () => {
             this.toggleSearchBar();
@@ -223,17 +275,27 @@ export default {
             this.createInterDialog = !this.createInterDialog;
           },
         },
+        {
+          title: "장소 검색",
+          icon: "mdi-cloud-search",
+          clickAction: () => {
+            this.specialSearchDialog = !this.specialSearchDialog;
+          },
+        },
       ],
       addressList: [], // 서버에서 받아온 주소 리스트
+      specialList: [], // 카카오 API 주소 리스트
       mini: true,
       kakaomap: null,
       houses: [], // 집 정보
       aptMarkers: [], // 마커 배열
+      storeMarkers: [],
       deals: [], // 사이드 창에서 불러오는 거래내역 리스트
       dealOverlay: false, // 사이드 창 오버레이 토글
       clusterer: null,
       aptName: "", // 현재 선택한 아파트 이름
       aptCode: "", // 선택한 아파트 코드
+      specialMarker: null,
     };
   },
   computed: {
@@ -301,6 +363,24 @@ export default {
         alert("불러오기 실패");
       }
     },
+    async searchSpecial() {
+      if (this.specialSearchQuery.length < 2) {
+        alert("2글자 이상 입력하세요");
+        return;
+      }
+      const result = await StoreService.getSpecialArea(
+        this.specialSearchQuery.trim()
+      );
+      if (result.status == 200) {
+        console.log(result.data.documents);
+        this.specialList = result.data.documents.map((d) => {
+          d.address = `${d.place_name} (${d.address_name})`;
+          return d;
+        });
+      } else {
+        alert("카카오 에러");
+      }
+    },
     moveToAddress(item) {
       if (!item || item.lat == undefined || item.lng == undefined) {
         return;
@@ -312,7 +392,7 @@ export default {
       );
 
       this.kakaomap.setCenter(moveLatLon); // panTo 는 해당 좌표가 화면에 있으면 이동하지 않는다!!!!!! 왜??
-      if(item.map_level) {
+      if (item.map_level) {
         this.kakaomap.setLevel(item.map_level);
       } else {
         this.kakaomap.setLevel(3);
@@ -320,6 +400,34 @@ export default {
       this.interestDialog = false;
       this.searchDialog = false;
       this.favoriteDialog = false;
+      this.specialSearchDialog = false;
+    },
+    moveToSpecial(item) {
+      if (!item || item.y == undefined || item.x == undefined) {
+        return;
+      }
+      var moveLatLon = new kakao.maps.LatLng(Number(item.y), Number(item.x));
+
+      this.kakaomap.setCenter(moveLatLon); // panTo 는 해당 좌표가 화면에 있으면 이동하지 않는다!!!!!! 왜??
+      if (item.map_level) {
+        this.kakaomap.setLevel(item.map_level);
+      } else {
+        this.kakaomap.setLevel(3);
+      }
+
+      if (this.specialMarker) {
+        this.specialMarker.setMap(null);
+      }
+      this.specialMarker = new kakao.maps.Marker({
+        position: moveLatLon,
+        title: "test",
+        map: this.kakaomap,
+        image: specialMarkerImage(),
+      });
+      this.interestDialog = false;
+      this.searchDialog = false;
+      this.favoriteDialog = false;
+      this.specialSearchDialog = false;
     },
     setAptMarkers(houses) {
       this.aptMarkers.forEach((marker) => {
@@ -343,6 +451,27 @@ export default {
           this.closeOveray
         );
         this.aptMarkers.push(marker);
+      });
+    },
+    setStoreMarkers(stores) {
+      this.storeMarkers.forEach((marker) => {
+        marker.setMap(null);
+      });
+      this.storeMarkers = [];
+      stores.forEach((store) => {
+        // console.log(Number(store.lat), Number(store.lng));
+        let marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(Number(store.lat), Number(store.lng)),
+          map: this.kakaomap,
+          image: storeMarkerImage()
+        });
+
+        storeMarkerInfoWindow(
+          store,
+          marker,
+          this.kakaomap
+        );
+        this.storeMarkers.push(marker);
       });
     },
     async getAptDeals(aptCode, aptName) {
@@ -385,11 +514,23 @@ export default {
     },
   },
   watch: {
-    interestDialog: function() {
-      if(this.interestDialog) {
+    specialSearchDialog: function () {
+      if (this.specialSearchDialog) {
         this.favoriteDialog = false;
         this.searchDialog = false;
         this.createInterDialog = false;
+        this.interestDialog = false;
+        this.selectedTool = 4;
+      } else {
+        this.selectedTool = -1;
+      }
+    },
+    interestDialog: function () {
+      if (this.interestDialog) {
+        this.favoriteDialog = false;
+        this.searchDialog = false;
+        this.createInterDialog = false;
+        this.specialSearchDialog = false;
         this.selectedTool = 2;
       } else {
         this.selectedTool = -1;
@@ -400,6 +541,7 @@ export default {
         this.favoriteDialog = false;
         this.searchDialog = false;
         this.interestDialog = false;
+        this.specialSearchDialog = false;
         this.selectedTool = 3;
       } else {
         this.selectedTool = -1;
@@ -412,6 +554,7 @@ export default {
         this.favoriteDialog = false;
         this.interestDialog = false;
         this.createInterDialog = false;
+        this.specialSearchDialog = false;
         this.selectedTool = 0;
       } else {
         this.selectedTool = -1;
@@ -422,6 +565,7 @@ export default {
         this.searchDialog = false;
         this.interestDialog = false;
         this.createInterDialog = false;
+        this.specialSearchDialog = false;
         this.selectedTool = 1;
       } else {
         this.selectedTool = -1;
@@ -445,10 +589,19 @@ export default {
         } else {
           if (data.response.status == 403) {
             // alert("금지된 요청");
-            console.log(data)
+            console.log(data);
           } else {
-            console.log(data)
+            console.log(data);
             // alert("불러오기 실패");
+          }
+        }
+
+        if (this.storeLoad) {
+          const storeData = await StoreService.getStores(this.boundary);
+          if (storeData?.status == "success") {
+            this.setStoreMarkers(storeData.result);
+          } else {
+            alert("서버 에러");
           }
         }
       } else if (mapLevel < 8) {
@@ -459,6 +612,7 @@ export default {
           marker.setMap(null);
         });
         this.aptMarkers = [];
+        this.storeMarkers = [];
 
         const data = await HouseService.getHouseCount(this.boundary);
         if (data?.status == "success") {
@@ -523,7 +677,7 @@ export default {
   text-align: center;
   font-size: 14px;
   line-height: 1.2;
-  z-index: -1;
+  z-index: 5;
 }
 
 .custom-overlay-title {
@@ -582,5 +736,10 @@ export default {
   color: white;
   padding-left: 10px;
   padding-top: 10px;
+}
+
+.store-checkbox .v-label {
+  font-size: 0.85em !important;
+  /* background-color: red !important; */
 }
 </style>
