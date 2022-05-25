@@ -51,12 +51,12 @@
           ></v-text-field>
           <!-- <label>전화번호</label> -->
           <v-text-field
-            label="phone"
+            label="mobile"
             hide-details="auto"
             :rules="textRules"
             class="sign_input"
-            v-model.trim="phone"
-            ref="phone"
+            v-model.trim="mobile"
+            ref="mobile"
           ></v-text-field>
           <div>
             <button
@@ -85,7 +85,7 @@ export default {
       password: "",
       username: "",
       email: "",
-      phone: "",
+      mobile: "",
       msg: "",
       passwordRules: [
         (value) => !!value || "Required.",
@@ -144,8 +144,8 @@ export default {
         return;
       }
 
-      if (this.phone.length < 4 || this.phone.length > 50) {
-        this.$refs.phone.focus();
+      if (this.mobile.length < 4 || this.mobile.length > 50) {
+        this.$refs.mobile.focus();
         return;
       }
 

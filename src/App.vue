@@ -38,7 +38,7 @@ export default {
   position: fixed;
   margin-top: 130px;
   margin-left: 50px;
-  height: 200px !important;
+  height: 280px !important;
 }
 
 .main-content {

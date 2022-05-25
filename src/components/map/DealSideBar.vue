@@ -115,7 +115,6 @@ export default {
           text: "월",
           align: "start",
           sortable: false,
-
           value: "month",
           width: 20,
         },

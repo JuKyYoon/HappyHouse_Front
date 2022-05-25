@@ -2,7 +2,7 @@
   <div class="main-map">
     <div class="map-div-left">
       <v-navigation-drawer
-        class="map-tool"
+        class="map-tool accent-4"
         v-model="drawer"
         :mini-variant.sync="mini"
         permanent
@@ -84,8 +84,69 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="interestDialog" max-width="700px">
+      <v-card>
+    <v-card-title>
+      <span class="text-h5">관심지역</span>
+    </v-card-title>
+    <v-card-text>
+        <interest-list-vue v-if="interestDialog" @moveToAddress="moveToAddress"></interest-list-vue>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="blue darken-1" text @click="interestDialog = false">
+        close
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="createInterDialog" max-width="700px">
+        <v-card>
+          <v-card-title>
+            <span class="text-h5">현재 지도를 관심지역으로 등록하기</span>
+          </v-card-title>
+          <v-card-text
+            ><v-text-field
+              label="저장할 이름을 적어주세요"
+              hide-details="auto"
+              :rules="[
+                (value) => !!value || 'Required.',
+                (value) => (value || '').length <= 20 || 'Max 20 characters',
+              ]"
+              v-model.trim="interAreaName"
+              ref="interAreaName"
+            ></v-text-field
+          ></v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="registerInterArea">
+              SAVE
+            </v-btn>
+            <v-btn color="red darken-1" text @click="createInterDialog = false">
+              close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <div id="map"></div>
     </div>
+
+    <v-snackbar
+      v-model="areaSave"
+      timeout="3000"
+      bottom
+      color="success"
+      outlined
+    >
+      저장 되었습니다
+      <template v-slot:action="{ attrs }">
+        <v-btn color="green" text v-bind="attrs" @click="areaSave = false">
+          X
+        </v-btn>
+      </template>
+    </v-snackbar>
 
     <div class="map-div-right" v-if="dealOverlay">
       <deal-side-bar-vue
@@ -103,27 +164,35 @@
 import { AddressService } from "@/service/address.service.js";
 import { DealService } from "@/service/deal.service.js";
 import { HouseService } from "@/service/house.service.js";
+import { InterAreaService } from "@/service/interArea.service";
 import { StoreService } from "@/service/store.service";
+import { FavoriteService } from "@/service/favorite.service";
 
 import KakaoMapEvent from "@/util/kakaoMapEvent.js";
 import { markerImage, markerInfoWindow } from "@/util/kakaoMapMarker.js";
 import { mapState } from "vuex";
+
 import DealSideBarVue from "./DealSideBar.vue";
-import { FavoriteService } from "@/service/favorite.service";
 import FavoriteHouseVue from "./FavoriteHouse.vue";
+import InterestListVue from "./InterestList.vue";
 export default {
   name: "MainMap",
   components: {
     DealSideBarVue,
     FavoriteHouseVue,
+    InterestListVue
   },
   data() {
     return {
-      selectedTool: 1,
+      areaSave: false,
+      interestDialog: false,
+      createInterDialog: false,
+      selectedTool: 0,
       favoriteDialog: false,
       searchDialog: true, // 검색 창 보이기/숨기기
       searchQuery: "서울 강남", // 지역 검색
       drawer: false, // 도구바 보이기/숨기기
+      interAreaName: "",
       items: [
         {
           title: "지역 검색",
@@ -144,6 +213,14 @@ export default {
           icon: "mdi-map-legend",
           clickAction: () => {
             // this.toggleSearchBar();
+            this.interestDialog = !this.interestDialog;
+          },
+        },
+        {
+          title: "관심지역 등록하기",
+          icon: "mdi-playlist-plus",
+          clickAction: () => {
+            this.createInterDialog = !this.createInterDialog;
           },
         },
       ],
@@ -233,8 +310,14 @@ export default {
         Number(item.lat),
         Number(item.lng)
       );
-      this.kakaomap.panTo(moveLatLon);
-      this.kakaomap.setLevel(4);
+
+      this.kakaomap.setCenter(moveLatLon); // panTo 는 해당 좌표가 화면에 있으면 이동하지 않는다!!!!!! 왜??
+      if(item.map_level) {
+        this.kakaomap.setLevel(item.map_level);
+      } else {
+        this.kakaomap.setLevel(3);
+      }
+      this.interestDialog = false;
       this.searchDialog = false;
       this.favoriteDialog = false;
     },
@@ -277,17 +360,58 @@ export default {
         console.log("거래내역 가져오기 실패");
       }
     },
+    async registerInterArea() {
+      if (this.interAreaName.length >= 20 || this.interAreaName.length < 1) {
+        this.$refs.interAreaName.focus();
+        return;
+      }
+      const data = await InterAreaService.register({
+        title: this.interAreaName,
+        map_level: this.kakaomap.getLevel(),
+        lat: this.kakaomap.getCenter().getLat(),
+        lng: this.kakaomap.getCenter().getLng(),
+      });
+
+      if (data?.status == "success") {
+        this.areaSave = true;
+        this.createInterDialog = false;
+      } else {
+        alert("저장 실패");
+      }
+    },
     closeOveray() {
       this.deals = [];
       this.dealOverlay = false;
     },
   },
   watch: {
+    interestDialog: function() {
+      if(this.interestDialog) {
+        this.favoriteDialog = false;
+        this.searchDialog = false;
+        this.createInterDialog = false;
+        this.selectedTool = 2;
+      } else {
+        this.selectedTool = -1;
+      }
+    },
+    createInterDialog: function () {
+      if (this.createInterDialog) {
+        this.favoriteDialog = false;
+        this.searchDialog = false;
+        this.interestDialog = false;
+        this.selectedTool = 3;
+      } else {
+        this.selectedTool = -1;
+      }
+    },
     searchDialog: function () {
       // 검색창 닫으면 검색단어도 지운다
-      this.searchQuery = "";
       if (this.searchDialog) {
+        this.searchQuery = "";
         this.favoriteDialog = false;
+        this.interestDialog = false;
+        this.createInterDialog = false;
         this.selectedTool = 0;
       } else {
         this.selectedTool = -1;
@@ -296,6 +420,8 @@ export default {
     favoriteDialog: function () {
       if (this.favoriteDialog) {
         this.searchDialog = false;
+        this.interestDialog = false;
+        this.createInterDialog = false;
         this.selectedTool = 1;
       } else {
         this.selectedTool = -1;
@@ -318,9 +444,11 @@ export default {
           this.setAptMarkers(data.result);
         } else {
           if (data.response.status == 403) {
-            alert("금지된 요청");
+            // alert("금지된 요청");
+            console.log(data)
           } else {
-            alert("불러오기 실패");
+            console.log(data)
+            // alert("불러오기 실패");
           }
         }
       } else if (mapLevel < 8) {
