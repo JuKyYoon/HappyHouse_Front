@@ -9,7 +9,7 @@
       >
         <v-list-item class="px-2">
           <v-list-item-avatar>
-            <v-icon>mdi-home-city</v-icon>
+            <v-icon>mdi-hammer-screwdriver</v-icon>
           </v-list-item-avatar>
 
           <v-list-item-title>도구 모음</v-list-item-title>
@@ -22,17 +22,21 @@
         <v-divider></v-divider>
 
         <v-list dense>
-          <v-list-item v-for="item in items" :key="item.title">
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
+          <v-list-item-group v-model="selectedTool" color="primary">
+            <v-list-item
+              v-for="item in items"
+              :key="item.title"
+              @click="item.clickAction"
+            >
+              <v-list-item-icon>
+                <v-icon>{{ item.icon }}</v-icon>
+              </v-list-item-icon>
 
-            <v-list-item-content>
-              <v-list-item-title @click="item.clickAction">{{
-                item.title
-              }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
         </v-list>
       </v-navigation-drawer>
 
@@ -60,29 +64,25 @@
         </v-card>
       </v-dialog>
 
-      <v-row justify="center">
-        <v-dialog v-model="favoriteDialog" persistent max-width="600px">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark v-bind="attrs" v-on="on">
-              불러오기
+      <v-dialog v-model="favoriteDialog" max-width="700px">
+        <v-card>
+          <v-card-title>
+            <span class="text-h5">즐겨찾기</span>
+          </v-card-title>
+          <v-card-text>
+            <favorite-house-vue
+              v-if="favoriteDialog"
+              @moveToAddress="moveToAddress"
+            ></favorite-house-vue>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="favoriteDialog = false">
+              close
             </v-btn>
-          </template>
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">즐겨찾기</span>
-            </v-card-title>
-            <v-card-text>
-              <favorite-house-vue v-if="favoriteDialog" @moveToAddress="moveToAddress"></favorite-house-vue>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="favoriteDialog = false">
-                close
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <div id="map"></div>
     </div>
@@ -115,10 +115,11 @@ export default {
   name: "MainMap",
   components: {
     DealSideBarVue,
-    FavoriteHouseVue
+    FavoriteHouseVue,
   },
   data() {
     return {
+      selectedTool: 1,
       favoriteDialog: false,
       searchDialog: true, // 검색 창 보이기/숨기기
       searchQuery: "서울 강남", // 지역 검색
@@ -126,23 +127,23 @@ export default {
       items: [
         {
           title: "지역 검색",
+          icon: "mdi-magnify",
+          clickAction: () => {
+            this.toggleSearchBar();
+          },
+        },
+        {
+          title: "즐겨찾기 아파트",
           icon: "mdi-home-city",
           clickAction: () => {
-            this.toggleSearchBar();
+            this.favoriteDialog = !this.favoriteDialog;
           },
         },
         {
-          title: "My Account",
-          icon: "mdi-account",
+          title: "관심지역",
+          icon: "mdi-map-legend",
           clickAction: () => {
-            this.favoriteDialog = !this.favoriteDialog
-          },
-        },
-        {
-          title: "Users",
-          icon: "mdi-account-group-outline",
-          clickAction: () => {
-            this.toggleSearchBar();
+            // this.toggleSearchBar();
           },
         },
       ],
@@ -153,7 +154,7 @@ export default {
       aptMarkers: [], // 마커 배열
       deals: [], // 사이드 창에서 불러오는 거래내역 리스트
       dealOverlay: false, // 사이드 창 오버레이 토글
-      clusterer: null, 
+      clusterer: null,
       aptName: "", // 현재 선택한 아파트 이름
       aptCode: "", // 선택한 아파트 코드
     };
@@ -233,6 +234,7 @@ export default {
         Number(item.lng)
       );
       this.kakaomap.panTo(moveLatLon);
+      this.kakaomap.setLevel(4);
       this.searchDialog = false;
       this.favoriteDialog = false;
     },
@@ -284,7 +286,15 @@ export default {
     searchDialog: function () {
       // 검색창 닫으면 검색단어도 지운다
       this.searchQuery = "";
-    }, 
+      if (this.searchDialog) {
+        this.favoriteDialog = false;
+      }
+    },
+    favoriteDialog: function () {
+      if (this.favoriteDialog) {
+        this.searchDialog = false;
+      }
+    },
     boundary: async function () {
       if (this.boundary.left == null) {
         alert("바운더리 오류");

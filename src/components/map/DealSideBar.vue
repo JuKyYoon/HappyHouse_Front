@@ -36,20 +36,47 @@
         </div>
       </div>
 
-      <v-data-table
-        dense
-        :headers="headers"
-        :items="deals"
-        item-key="no"
-        class="elevation-1"
-      >
-        <template v-slot:[`item.money`]="{ item }">
-          <span>{{ covertMoney(item.money) }}원</span>
-        </template>
-        <template v-slot:[`item.area`]="{ item }">
-          <span>{{ Math.ceil(item.area, 1) }}평</span>
-        </template>
-      </v-data-table>
+      <v-tabs v-model="tab" align-with-title>
+        <v-tabs-slider color="yellow"></v-tabs-slider>
+
+        <v-tab>거래내역</v-tab>
+        <v-tab>가격변동그래프</v-tab>
+      </v-tabs>
+
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <v-data-table
+            dense
+            dark
+            :headers="headers"
+            :items="deals"
+            item-key="no"
+            class="elevation-1"
+          >
+            <template v-slot:[`item.money`]="{ item }">
+              <span>{{ covertMoney(item.money) }}원</span>
+            </template>
+            <template v-slot:[`item.area`]="{ item }">
+              <span>{{ Math.ceil(item.area, 1) }}평</span>
+            </template>
+          </v-data-table>
+        </v-tab-item>
+
+        <v-tab-item>
+          <v-sparkline
+            :value="value"
+            color="black"
+            height="100"
+            padding="24"
+            stroke-linecap="round"
+            smooth
+            auto-draw
+          >
+          </v-sparkline>
+          <div style="text-align:center">날짜순</div>
+        </v-tab-item>
+      </v-tabs-items>
+
       <template v-slot:append>
         <div class="pa-2">
           <v-btn v-on:click="closeOveray"> CLOSE </v-btn>
@@ -67,6 +94,8 @@ export default {
   data() {
     return {
       isFavorite: false,
+      tab: null,
+      value: this.deals.map(d=>this.convertMoneytoNumber(d.money)),
       headers: [
         {
           text: "거래가",
@@ -119,6 +148,23 @@ export default {
     },
     convertDay(year, month, day) {
       return `${year}년 ${month}월 ${day}일`;
+    },
+    convertMoneytoNumber(money) {
+      let c = parseInt(money.replace(/,/g, ""));
+      return c;
+    },
+    convertNumberMoneyToString(money) {
+      let man = parseInt(money % 10000);
+      let uk = parseInt(money / 10000);
+      if (uk != 0) {
+        if (man == 0) {
+          return `${uk}억`;
+        } else {
+          return `${uk}억 ${man % 10000} 만`;
+        }
+      } else {
+        return `${man % 10000} 만`;
+      }
     },
     covertMoney(money) {
       let c = parseInt(money.replace(/,/g, ""));

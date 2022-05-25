@@ -5,7 +5,7 @@ import QnaView from "../views/QnaView.vue";
 import UserView from "../views/UserView.vue";
 import MapView from "@/views/MapView.vue";
 import BoardView from "@/views/BoardView.vue";
-
+import ChartView from "@/views/ChartView.vue"
 Vue.use(VueRouter);
 
 const routes = [
@@ -131,6 +131,25 @@ const routes = [
     name: "socialsignup",
     component: () => import("@/views/SocialSignUpView.vue"),
   },
+  {
+    path: "/chart",
+    name: "chart",
+    component: ChartView,
+    redirect: 'chart/main',
+    children: [
+      {
+        path: "main",
+        name: "ChartMain",
+        component: () => import("@/components/chart/ChartMain.vue")
+      },
+      {
+        path: ":sido",
+        name: "ChartSub",
+        component: () => import("@/components/chart/ChartSub.vue"),
+        props: true,
+      }
+    ]
+  }
 ];
 
 const router = new VueRouter({
