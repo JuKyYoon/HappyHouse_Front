@@ -54,7 +54,7 @@
 
       <span class="appbar-component" v-if="isLogin" >
         <v-btn text @click="logout">LogOut</v-btn>
-        <v-btn text to="/user/info">Admin<v-icon>mdi-account-circle</v-icon></v-btn>
+        <v-btn text to="/user/info"><span v-if="admin" >Admin</span><v-icon>mdi-account-circle</v-icon></v-btn>
       </span>
         <span class="appbar-component" v-else>
         <v-btn text to="/user/signup">SIGN UP</v-btn>

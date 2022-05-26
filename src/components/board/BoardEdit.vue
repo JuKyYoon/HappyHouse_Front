@@ -1,13 +1,10 @@
 <template>
-  <v-app>
+  <div style="background-color:white">
     <tip-tap-vue :mode="true" :create="true" :type="type"></tip-tap-vue>
-    <v-container>
-    </v-container>
-  </v-app>
+  </div>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
 import TipTapVue from "../editor/TipTap.vue";
 
 export default {

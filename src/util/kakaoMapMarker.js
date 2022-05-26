@@ -3,8 +3,8 @@ let globalOverlay = null;
 let globalStoreOverlay = null;
 // 마커 이미지 생성
 export function markerImage() {
-  let imageSize = new kakao.maps.Size(30, 30); // 마커이미지의 크기입니다
-  let imageOption = { offset: new kakao.maps.Point(27, 69) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+  let imageSize = new kakao.maps.Size(50, 50); // 마커이미지의 크기입니다
+  let imageOption = { offset: new kakao.maps.Point(27, 39) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
 
   return new kakao.maps.MarkerImage(
     require(process.env.VUE_APP_KAKAOMAP_ICON),
@@ -14,8 +14,8 @@ export function markerImage() {
 }
 
 export function specialMarkerImage() {
-  let imageSize = new kakao.maps.Size(30, 30); // 마커이미지의 크기입니다
-  let imageOption = { offset: new kakao.maps.Point(27, 69) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+  let imageSize = new kakao.maps.Size(50, 50); // 마커이미지의 크기입니다
+  let imageOption = { offset: new kakao.maps.Point(27, 39) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
 
   return new kakao.maps.MarkerImage(
     require(process.env.VUE_APP_KAKAOMAP_SPECIAL_ICON),
@@ -25,8 +25,8 @@ export function specialMarkerImage() {
 }
 
 export function storeMarkerImage() {
-  let imageSize = new kakao.maps.Size(30, 30); // 마커이미지의 크기입니다
-  let imageOption = { offset: new kakao.maps.Point(27, 69) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+  let imageSize = new kakao.maps.Size(50, 50); // 마커이미지의 크기입니다
+  let imageOption = { offset: new kakao.maps.Point(27, 39) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
 
   return new kakao.maps.MarkerImage(
     require(process.env.VUE_APP_KAKAOMAP_STORE_ICON),
@@ -56,11 +56,11 @@ export function makeStoreMarkerOverlay(map, marker, data) {
   });
 
   var content = document.createElement("div");
-  content.className = "custom-overlay";
+  content.className = "store-overlay";
 
   var titleDiv = document.createElement("div");
   titleDiv.className = "custom-overlay-title";
-  titleDiv.innerHTML = `<span>${data.name}</span>`;
+  titleDiv.innerHTML = `<span>${data.name} ${data.branch_name}</span>`;
 
   var closeBtn = document.createElement("button");
   closeBtn.className = "custom-overlay-close-button";
@@ -75,13 +75,11 @@ export function makeStoreMarkerOverlay(map, marker, data) {
   };
 
   var mainDiv = document.createElement("div");
-  mainDiv.className = "custom-overlay-main";
+  mainDiv.className = "store-overlay-main";
   mainDiv.innerHTML = `
-    <div class="custom-overlay-left">
-      <img class="overlay-apt-img" alt="none" src="https://images.unsplash.com/photo-1551766472-62096056b476?ixlib=rb-1.2.1&raw_url=true&q=80&fm=jpg&crop=entropy&cs=tinysrgb&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=836">
-    </div>
-    <div class="custom-overlay-right">
-      <p>주소 ${data.jibun_address}</p>
+    <div class="store-overlay-content">
+      <p>${data.sub_category_name}</p>
+      <p>${data.jibun_address}</p>
     </div>
   `;
 

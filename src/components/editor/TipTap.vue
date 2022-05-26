@@ -238,7 +238,7 @@ export default {
   props: ["mode", "create", "type"],
   data() {
     return {
-      userCategory: ["자유"],
+      userCategory: ["공지", "자유"],
       adminCategory: ["공지", "자유"],
       category: "자유",
       doSolve: false,
@@ -330,6 +330,11 @@ export default {
     },
 
     async articleSave() {
+      if(!this.admin && this.category == "공지") {
+        alert("공지 작성 불가능")
+        return;
+      } 
+
       if (this.article.title.length == 0) {
         this.$refs.title.focus();
         return;
@@ -373,6 +378,11 @@ export default {
     },
 
     async putArticle() {
+      if(!this.admin && this.category == "공지") {
+        alert("공지 작성 불가능")
+        return;
+      } 
+
       if (confirm("수정 할거야?")) {
         this.updateContent(this.editor.getHTML()); // content 만 업데이트 ( title은 v-model 되어있음)
         this.updateArticle({
@@ -457,6 +467,7 @@ export default {
 }
 
 .main-editor {
+  background-color: white;
   border: thin solid rgba(0, 0, 0, 0.12);
   box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
     0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);

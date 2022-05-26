@@ -6,6 +6,12 @@
     <div class="main-content">
       <router-view />
     </div>
+
+    <v-footer padless color="#e1e3e9">
+      <v-col class="text-center" cols="12" >
+        <strong>SSAFY 7기 HAPPY HOUSE</strong>
+      </v-col>
+    </v-footer>
   </v-app>
 </template>
 
@@ -18,7 +24,6 @@ export default {
   },
   created() {
     // const script = document.createElement("script");
-
     // /* global kakao */
     // script.onload = () => kakao.maps.load(this.initMap);
     // script.src =
@@ -47,5 +52,4 @@ export default {
   width: 100%;
   height: 100%;
 }
-
 </style>

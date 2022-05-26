@@ -16,8 +16,10 @@ export default {
   },
   props: ['type'],
   computed: {
-    ...mapState(['answers']),
-    ...mapActions(['getAnswers'])
+    ...mapState('articleStore',['answers']),
+  },
+  methods: {
+    ...mapActions('articleStore',['getAnswers'])
   },
   data() {
     return {
@@ -27,7 +29,7 @@ export default {
   async created() {
     const idx = this.$route.params.idx;
     if(idx != undefined) {
-      await this.$store.dispatch("getAnswers", idx);
+      await this.getAnswers(idx);
     }
   }
 };
@@ -35,6 +37,6 @@ export default {
 
 <style>
 .answer-list {
-
+  background-color: #ebecf0;
 }
 </style>

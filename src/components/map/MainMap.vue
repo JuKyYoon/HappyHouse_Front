@@ -2,11 +2,11 @@
   <div class="main-map">
     <div class="map-div-left">
       <v-navigation-drawer
-        class="map-tool accent-4"
+        class="map-tool"
         v-model="drawer"
         :mini-variant.sync="mini"
         permanent
-        color="#ebecf0"
+        color="#fffffe"
       >
         <v-list-item class="px-2">
           <v-list-item-avatar>
@@ -23,7 +23,7 @@
         <v-divider></v-divider>
 
         <v-list dense>
-          <v-list-item-group v-model="selectedTool" color="primary">
+          <v-list-item-group v-model="selectedTool" color="primary" class="map-tool-list-group">
             <v-list-item
               v-for="item in items"
               :key="item.title"
@@ -616,6 +616,9 @@ export default {
         this.aptMarkers.forEach((marker) => {
           marker.setMap(null);
         });
+        this.storeMarkers.forEach((marker) => {
+          marker.setMap(null);
+        });
         this.aptMarkers = [];
         this.storeMarkers = [];
 
@@ -683,7 +686,7 @@ export default {
   text-align: center;
   font-size: 14px;
   line-height: 1.2;
-  z-index: 5;
+  z-index: 50;
 }
 
 .custom-overlay-title {
@@ -750,5 +753,39 @@ export default {
 .store-checkbox .v-label {
   font-size: 0.85em !important;
   /* background-color: red !important; */
+}
+
+.map-tool-list-group .v-list-item--active {
+  /* color: #6d7491 !important; */
+}
+
+.store-overlay {
+  position: absolute;
+  bottom: 50px;
+  margin-bottom: 5px;
+  margin-left: -150px;
+  padding: 7px;
+  width: 350px;
+  height: 120px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  background-color: #000;
+  background-color: hsla(0, 0%, 20%, 0.9);
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.2;
+  z-index: 50;
+}
+
+.store-overlay-main {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.store-overlay-content{
+  /* background-color: red; */
 }
 </style>

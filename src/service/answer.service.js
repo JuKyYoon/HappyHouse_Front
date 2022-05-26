@@ -1,5 +1,4 @@
 import axiosAuth from "./axios.auth";
-
 export class AnswerService {
   static getAnswers = async (idx) => {
     try {
@@ -12,11 +11,7 @@ export class AnswerService {
 
   static createAnswer = async (ans) => {
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-
-      const result = await axiosAuth.post(`/answer`, ans, {headers: headers});
+      const result = await axiosAuth.post(`/answer`, ans);
       return result.data;
     } catch(err) {
       return err;
@@ -34,10 +29,8 @@ export class AnswerService {
 
   static updateAnswer = async (ans) => {
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      const result = await axiosAuth.put(`/answer/${ans.idx}`, ans, {headers: headers});
+
+      const result = await axiosAuth.put(`/answer/${ans.idx}`, ans);
       return result.data;
     } catch(err) {
       return err;

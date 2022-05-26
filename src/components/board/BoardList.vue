@@ -1,42 +1,49 @@
 <template>
-  <v-app>
+  <div>
+    <v-card>
+      <v-card-title>{{this.type == "qna" ? "Question" : "Board"}}</v-card-title>
+    </v-card>
+    <br/>
     <v-card>
       <v-card-title>
         <v-text-field
           v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
+          prepend-icon="mdi-magnify"
+          label="검색"
           single-line
           hide-details
         ></v-text-field>
       </v-card-title>
-      <v-data-table
-        :headers="typeHeaders"
-        :items="board_list"
-        :search="search"
-        class="elevation-1"
-        :loading="!dataState"
-        :item-class="itemRowBackground"
-        loading-text="Loading... Please wait"
-        @click:row="detailClick"
-        @page-count="pageCount = $event"
-        :page.sync="page"
-        :items-per-page="itemsPerPage"
-        hide-default-footer
-      >
-        <template v-slot:[`item.create_date`]="{ item }">
-          {{ dateFormat(item.create_date) }}
-        </template>
-        <template v-slot:[`item.solved`]="{ item }">
-          <v-chip
-            class="ma-2"
-            :color="getColor(item.solved)"
-            text-color="white"
-          >
-            {{ item.solved == 1 ? "해결" : "해결 필요" }}
-          </v-chip>
-        </template>
-      </v-data-table>
+      <div style="margin-left: 10%; margin-right: 10%">
+        <v-data-table
+          :headers="typeHeaders"
+          :items="board_list"
+          :search="search"
+          class="elevation-1"
+          :loading="!dataState"
+          :item-class="itemRowBackground"
+          loading-text="Loading... Please wait"
+          @click:row="detailClick"
+          @page-count="pageCount = $event"
+          :page.sync="page"
+          :items-per-page="itemsPerPage"
+          hide-default-footer
+        >
+          <template v-slot:[`item.create_date`]="{ item }">
+            {{ dateFormat(item.create_date) }}
+          </template>
+          <template v-slot:[`item.solved`]="{ item }">
+            <v-chip
+              class="ma-2"
+              :color="getColor(item.solved)"
+              text-color="white"
+            >
+              {{ item.solved == 1 ? "해결" : "해결 필요" }}
+            </v-chip>
+          </template>
+        </v-data-table>
+      </div>
+
       <v-pagination v-model="page" :length="pageCount"></v-pagination>
     </v-card>
     <v-col class="text-right">
@@ -44,7 +51,7 @@
         ><v-btn>글쓰기</v-btn></router-link
       >
     </v-col>
-  </v-app>
+  </div>
 </template>
 
 <script>
@@ -85,7 +92,7 @@ export default {
         return "";
       }
       let diffDate = this.nowTime.diff(dayjs(date), "d");
-      if(diffDate == 0) {
+      if (diffDate == 0) {
         return `${this.nowTime.diff(dayjs(date), "h")}시간 전`;
       } else {
         return dayjs(date).format("YYYY년 MM월 DD일");
@@ -127,47 +134,51 @@ export default {
           value: "userid",
         },
         {
-          text: "조회수",
-          sortable: false,
-          value: "view_count",
+          text: "해결",
+          sortable: true,
+          value: "solved",
         },
+
         {
           text: "작성일",
           sortable: true,
           value: "create_date",
         },
         {
-          text: "해결",
-          sortable: true,
-          value: "solved",
+          text: "조회수",
+          sortable: false,
+          value: "view_count",
         },
       ],
       boardHeaders: [
         {
           text: "글번호",
-          sortable: true,
+          sortable: false,
           value: "idx",
-          width: 100,
+          divider: true,
         },
         {
           text: "카테고리",
           sortable: false,
           value: "category",
-          width: 100,
+          divider: true,
         },
         {
           text: "제목",
-          sortable: true,
+          sortable: false,
+          divider: true,
           value: "title",
         },
         {
           text: "작성자",
-          sortable: true,
+          sortable: false,
+          divider: true,
           value: "userid",
         },
         {
           text: "작성일",
-          sortable: true,
+          divider: true,
+          sortable: false,
           value: "create_date",
         },
       ],
@@ -178,6 +189,10 @@ export default {
 
 <style>
 .notice {
-  background-color: #a7abbd;
+  background-color: #e1e3e9;
+}
+
+.notice:hover {
+  background-color: #c4c7d3;
 }
 </style>
