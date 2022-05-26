@@ -43,7 +43,7 @@ export default {
   position: fixed;
   margin-top: 130px;
   margin-left: 50px;
-  height: 330px !important;
+  height: 380px !important;
 }
 
 .main-content {

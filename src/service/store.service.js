@@ -16,9 +16,15 @@ export class StoreService {
     }
   };
 
-  static getSpecialArea = async (query) => {
+  static getSpecialArea = async (query, queryData) => {
     try {
-      const url = KAKAO_SEARCH_QUERY + query
+      let url = KAKAO_SEARCH_QUERY + query
+      
+      if(queryData.lat && queryData.lng) {
+        url += `&y=${queryData.lat}&x=${queryData.lng}&radius=20000`
+      }
+      console.log(queryData, url)
+
       const headers = {
         "Authorization": `KakaoAK ${process.env.VUE_APP_KAKAOAPI_KEY}`
       }

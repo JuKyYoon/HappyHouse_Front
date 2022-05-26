@@ -13,7 +13,7 @@
             <v-icon>mdi-hammer-screwdriver</v-icon>
           </v-list-item-avatar>
 
-          <v-list-item-title>도구 모음</v-list-item-title>
+          <v-list-item-title>도구 모음 </v-list-item-title>
 
           <v-btn icon @click.stop="mini = !mini">
             <v-icon>mdi-chevron-left</v-icon>
@@ -23,7 +23,11 @@
         <v-divider></v-divider>
 
         <v-list dense>
-          <v-list-item-group v-model="selectedTool" color="primary" class="map-tool-list-group">
+          <v-list-item-group
+            v-model="selectedTool"
+            color="primary"
+            class="map-tool-list-group"
+          >
             <v-list-item
               v-for="item in items"
               :key="item.title"
@@ -42,7 +46,6 @@
             <v-list-item-icon>
               <v-icon>mdi-home-city</v-icon>
             </v-list-item-icon>
-
             <v-list-item-content class="store-checkbox">
               <v-list-item-title
                 ><v-checkbox
@@ -54,6 +57,15 @@
                   hide-details
                 ></v-checkbox
               ></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-crosshairs-gps</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-btn @click="geofind">내 위치 이동</v-btn>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -89,6 +101,8 @@
         content-class="map-search-bar"
       >
         <v-card>
+          <v-card-title> </v-card-title>
+          <v-checkbox v-model="nowMap" dense label="현재 지도 위치 기반 검색"> </v-checkbox>
           <v-combobox
             :items="specialList"
             @keyup.enter="searchSpecial"
@@ -234,6 +248,7 @@ export default {
   },
   data() {
     return {
+      nowMap: false,
       storeLoad: false,
       areaSave: false,
       interestDialog: false,
@@ -318,6 +333,25 @@ export default {
     }
   },
   methods: {
+    geofind() {
+      if (!("geolocation" in navigator)) {
+        alert("Geolocation 이용불가능");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const item = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            map_level: 1,
+          };
+          this.moveToAddress(item);
+        },
+        (err) => {
+          alert("GPS 에러");
+        }
+      );
+    },
     initMap() {
       const container = document.getElementById("map");
       // 왜 kakao.maps.LatLng가 undefined 인지 모르겠음
@@ -369,8 +403,13 @@ export default {
         alert("2글자 이상 입력하세요");
         return;
       }
+      const queryData = {}
+      if(this.nowMap) {
+        queryData.lat = this.kakaomap.getCenter().getLat();
+        queryData.lng = this.kakaomap.getCenter().getLng();
+      }
       const result = await StoreService.getSpecialArea(
-        this.specialSearchQuery.trim()
+        this.specialSearchQuery.trim(), queryData
       );
       if (result.status == 200) {
         console.log(result.data.documents);
@@ -402,6 +441,7 @@ export default {
       this.searchDialog = false;
       this.favoriteDialog = false;
       this.specialSearchDialog = false;
+      this.createInterDialog = false;
     },
     moveToSpecial(item) {
       if (!item || item.y == undefined || item.x == undefined) {
@@ -785,7 +825,7 @@ export default {
   text-align: center;
 }
 
-.store-overlay-content{
+.store-overlay-content {
   /* background-color: red; */
 }
 </style>
