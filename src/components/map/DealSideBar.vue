@@ -1,11 +1,6 @@
 <template>
   <v-card class="mx-auto map-right-side">
-    <v-navigation-drawer
-      dark
-      permanent
-      width="500"
-      color="#575d74"
-    >
+    <v-navigation-drawer dark permanent width="500" color="#575d74">
       <div class="deal-side-bar-apt-title">
         <div class="deal-side-bar-apt-title-text">
           {{ aptName }}
@@ -41,6 +36,7 @@
 
         <v-tab>거래내역</v-tab>
         <v-tab>가격변동그래프</v-tab>
+        <v-tab>뉴스</v-tab>
       </v-tabs>
 
       <v-tabs-items v-model="tab">
@@ -73,7 +69,11 @@
             auto-draw
           >
           </v-sparkline>
-          <div style="text-align:center">날짜순</div>
+          <div style="text-align: center">날짜순</div>
+        </v-tab-item>
+
+        <v-tab-item>
+          <house-news-vue :aptCode="aptCode" :aptName="aptName"></house-news-vue>
         </v-tab-item>
       </v-tabs-items>
 
@@ -88,14 +88,18 @@
 
 <script>
 import { FavoriteService } from "@/service/favorite.service";
+import HouseNewsVue from "./HouseNews.vue";
 export default {
   name: "DealSideBar",
   props: ["deals", "aptName", "aptCode"],
+  components: {
+    HouseNewsVue,
+  },
   data() {
     return {
       isFavorite: false,
       tab: null,
-      value: this.deals.map(d=>this.convertMoneytoNumber(d.money)),
+      value: this.deals.map((d) => this.convertMoneytoNumber(d.money)),
       headers: [
         {
           text: "거래가",

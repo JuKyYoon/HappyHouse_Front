@@ -35,4 +35,14 @@ export class StoreService {
       return err;
     }
   };
+
+  static getNaverNews = async (query) => {
+    try {
+      // https://openapi.naver.com/v1/search/news.json?query=강남한신휴플러스6단지
+      const result = await axiosAuth.post("/proxy/news", {query:query});
+      return result.data;
+    } catch (err) {
+      return err;
+    }
+  }
 }

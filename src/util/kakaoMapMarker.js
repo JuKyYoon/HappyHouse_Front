@@ -116,6 +116,7 @@ function makeMarkerOverlay(map, marker, data, getAptDeals, closeOveray) {
     position: new kakao.maps.LatLng(data.lat, data.lng),
     xAnchor: 0.5,
     yAnchor: 0.5,
+    zIndex: 10,
   });
 
   // let content = `<div class="wrap">

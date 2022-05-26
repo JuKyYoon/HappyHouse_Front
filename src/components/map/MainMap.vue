@@ -774,7 +774,9 @@ export default {
   /* left: 0; */
   width: 30%;
   max-width: 500px;
-  height: 200px;
+  height: 800px;
+  max-height: 800px;
+  overflow: auto;
   z-index: 10;
 }
 
