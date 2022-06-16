@@ -73,7 +73,7 @@
         </v-tab-item>
 
         <v-tab-item>
-          <house-news-vue :aptCode="aptCode" :aptName="aptName"></house-news-vue>
+          <house-news-vue :aptCode="aptCode" :aptName="aptName" :aptAddr="aptAddr"></house-news-vue>
         </v-tab-item>
       </v-tabs-items>
 
@@ -91,7 +91,7 @@ import { FavoriteService } from "@/service/favorite.service";
 import HouseNewsVue from "./HouseNews.vue";
 export default {
   name: "DealSideBar",
-  props: ["deals", "aptName", "aptCode"],
+  props: ["deals", "aptName", "aptCode", "aptAddr"],
   components: {
     HouseNewsVue,
   },

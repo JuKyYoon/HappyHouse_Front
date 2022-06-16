@@ -74,7 +74,7 @@
         </v-hover>
       </div>
     </div>
-    <div class="main-background">
+    <div class="main-background" v-if="isLogin">
       <svg
         version="1.0"
         xmlns="http://www.w3.org/2000/svg"
@@ -216,6 +216,7 @@ export default {
   /* opacity: 0.7; */
 }
 .home-div {
+  
 }
 .div-inimg {
   display: flex;

@@ -1,6 +1,5 @@
 <template>
   <v-container>
-    {{ aptCode }}
     <v-list>
       <v-list-item v-for="(item, i) in calData" :key="i">
         <v-card color="#6d7491" dark dense class="news-card">
@@ -41,7 +40,7 @@ import dayjs from "dayjs";
 import { StoreService } from "@/service/store.service";
 export default {
   name: "HouseNews",
-  props: ["aptCode", "aptName"],
+  props: ["aptCode", "aptName", "aptAddr"],
   data() {
     return {
       dataPerPage: 5,
@@ -80,7 +79,7 @@ export default {
   },
   watch: {
     aptCode: async function () {
-      const data = await StoreService.getNaverNews(this.aptName);
+      const data = await StoreService.getNaverNews(`${this.aptAddr} ${this.aptName}`);
       if (data?.status == "success") {
         // console.log(data.result);
         this.news = data.result;

@@ -106,7 +106,7 @@ export function markerInfoWindow(data, marker, map, getAptDeals, closeOveray) {
     }
     customOverlay.setMap(map);
     globalOverlay = customOverlay;
-    getAptDeals(data.aptCode, data.aptName);
+    getAptDeals(data.aptCode, data.aptName, data.dongName);
   });
 }
 

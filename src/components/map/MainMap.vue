@@ -212,6 +212,7 @@
         :deals="deals"
         :aptName="aptName"
         :aptCode="aptCode"
+        :aptAddr="aptAddr"
         @closeOveray="closeOveray"
       ></deal-side-bar-vue>
     </div>
@@ -311,6 +312,7 @@ export default {
       clusterer: null,
       aptName: "", // 현재 선택한 아파트 이름
       aptCode: "", // 선택한 아파트 코드
+      aptAddr: "", // 선택 아파트 주소
       specialMarker: null,
     };
   },
@@ -511,17 +513,17 @@ export default {
         this.storeMarkers.push(marker);
       });
     },
-    async getAptDeals(aptCode, aptName) {
+    async getAptDeals(aptCode, aptName, aptAddr) {
       // 클릭시 거래내역 가져오기
-      // console.log(aptCode);
       const data = await DealService.getDealsByCode(aptCode);
 
       if (data?.status == "success") {
-        console.log(data.result);
+        // console.log("ff", data.result);
         this.deals = data.result;
         this.dealOverlay = true;
         this.aptName = aptName;
         this.aptCode = aptCode;
+        this.aptAddr = aptAddr;
       } else {
         console.log("거래내역 가져오기 실패");
       }
